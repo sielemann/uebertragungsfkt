@@ -1,0 +1,90 @@
+---
+title: "Übertragungsfunktionen"
+author: "Michael Sielemann"
+date: "2025-09-19"
+output: revealjs
+format:
+  revealjs:
+    incremental: false   
+---
+
+## Wiederholung
+
+ - Mathematische Beschreibungen im Zeitbereich
+   - ?
+
+::: notes
+Fragen
+ - Welche mathematischen Beschreibungen im Zeitbereich kennen Sie?
+:::
+
+## Wiederholung
+
+ - Mathematische Beschreibungen im Zeitbereich
+   - Zustandsraumdarstellung für lineare Systeme
+   - Differentialgleichung linear
+   - Differentialgleichung nichtlinear
+
+## Wiederholung
+
+ - Mathematische Beschreibungen im Zeitbereich
+   - Zustandsraumdarstellung für lineare Systeme <!-- Lunze Gl. 4.43 mit skalarem u, also Vektoren b, c, Skalar d -->
+     $$
+     \dot{x}(t) = A x(t) + B u(t), \quad x(0) = x_0
+     $$
+     $$
+     y(t) = C x(t) + D u(t)
+     $$
+   - Differentialgleichung linear
+   - Differentialgleichung nichtlinear
+
+::: notes
+Fragen
+ - Warum linear? Weil A, B, C, D nicht von x oder u abhängen.
+ - Welche Größen haben A sowie B, C sowie D? nxn, nx1, 1xn, Skalar (wenn u und y Länge 1 haben)
+:::
+
+
+
+## Wiederholung
+
+ - Mathematische Beschreibungen im Zeitbereich
+   - Zustandsraumdarstellung für lineare Systeme
+   - Differentialgleichung linear <!-- Lunze Gl. 4.3 -->
+     $$
+     a_n \frac{d^ny(t)}{dt^n} + a_{n-1} \frac{d^{n-1}y(t)}{dt^{n-1}} + \ldots + a_1 \frac{dy(t)}{dt} + a_0 y(t) = 
+     $$
+     $$
+     = b_q \frac{d^q u(t)}{dt^q} + b_{q-1} \frac{d^{q-1} u(t)}{dt^{q-1}} + \ldots + b_1 \frac{du(t)}{dt} + b_0 u(t)
+     $$
+   - Differentialgleichung nichtlinear
+
+## Wiederholung
+
+ - Mathematische Beschreibungen im Zeitbereich
+   - Zustandsraumdarstellung für lineare Systeme
+   - Differentialgleichung linear
+   - Differentialgleichung nichtlinear
+     $$
+     \dot{x}(t) = f(x,u,t), \quad x(0) = x_0
+     $$
+
+## Wiederholung
+
+ - Bedeutung der Variablen
+   - $u$?
+   - $x$?
+   - $y$?
+
+::: notes
+Fragen
+ - Bedeutungen u, x, y??
+ - Welche besondere Eigenschaft zeichnet Zustand aus? Speicher/Gedächtnis, kein instantane Änderung sondern verzögertes Verhalten und bleibender Einfluss
+:::
+
+## Wiederholung
+
+ - Bedeutung der Variablen
+   - $u$: Eingang
+   - $x$: Zustand (bestimmt zusammen mit Verlauf der Eingänge spätere Zustände und Ausgänge eindeutig) <!-- Lunze Def. 4.1 -->
+   - $y$: Ausgang
