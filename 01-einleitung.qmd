@@ -10,7 +10,7 @@ format:
     mainfont: "Source Sans Pro"    
 ---
 
-## Wiederholung
+## Wiederholung 1
 
  - Mathematische Beschreibungen im Zeitbereich
    - ?
@@ -20,14 +20,14 @@ Fragen
  - Welche mathematischen Beschreibungen im Zeitbereich kennen Sie?
 :::
 
-## Wiederholung
+## Wiederholung 1
 
  - Mathematische Beschreibungen im Zeitbereich
    - Zustandsraumdarstellung für lineare Systeme
    - Differentialgleichung linear
    - Differentialgleichung nichtlinear
 
-## Wiederholung
+## Wiederholung 1
 
  - Mathematische Beschreibungen im Zeitbereich
    - Zustandsraumdarstellung für lineare Systeme <!-- Lunze Gl. 4.43 mit SISO, d.h. skalarem u, also Vektoren b, c, Skalar d -->
@@ -48,7 +48,7 @@ Fragen
 
 
 
-## Wiederholung
+## Wiederholung 1
 
  - Mathematische Beschreibungen im Zeitbereich
    - Zustandsraumdarstellung für lineare Systeme
@@ -61,7 +61,7 @@ Fragen
      $$
    - Differentialgleichung nichtlinear
 
-## Wiederholung
+## Wiederholung 1
 
  - Mathematische Beschreibungen im Zeitbereich
    - Zustandsraumdarstellung für lineare Systeme
@@ -74,7 +74,7 @@ Fragen
      y = h(x,u)
      $$
 
-## Wiederholung
+## Wiederholung 2
 
  - Bedeutung der Variablen
    - $u$?
@@ -87,12 +87,42 @@ Fragen
  - Welche besondere Eigenschaft zeichnet Zustand aus? Speicher/Gedächtnis, kein instantane Änderung sondern verzögertes Verhalten und bleibender Einfluss
 :::
 
-## Wiederholung
+## Wiederholung 2
 
  - Bedeutung der Variablen
    - $u$: Eingang
    - $x$: Zustand (bestimmt zusammen mit Verlauf der Eingänge spätere Zustände und Ausgänge eindeutig) <!-- Lunze Def. 4.1 -->
    - $y$: Ausgang
+
+## Wiederholung 3
+
+ - Wie können wir Lösungen für lineare Systeme berechnen?
+   - ?
+
+::: notes
+Fragen
+ - Welche analytischen Methoden kennen Sie? Woraus wird die Lösung zusammengesetzt (besteht sie)?
+ - Welche numerischen Methoden kennen Sie?
+:::
+
+
+## Wiederholung 3
+
+ - Wie können wir Lösungen für lineare Systeme berechnen?
+   - Analytisch mit *Faltungsgleichung* (auch *Bewegungsgleichung* bzw. *Bewegungsgleichung für Ausgänge* in Lunze)
+     - $x(t) = e^{At} x_0 + \int_0^t e^{A(t-\tau)} B u(\tau) d\tau$ <!-- KJA Gl. 5.14 und Lunze Gl. 5.13-->
+     - $y(t) = C e^{At} x_0 + \int_0^t C e^{A(t-\tau)} B u(\tau) d\tau + D u(t)$ <!-- KJA Gl. 5.15 und Lunze Gl. 5.17-->
+   - Numerische Verfahren für gewöhnliche Differenzialgleichungen
+     - Euler
+     - Heun
+     - Runge-Kutta etc.
+
+::: notes
+Fragen
+ - Wie heissen der erste und zweite Summand der analytischen Lösung? Freie und erzwungene Lösung
+:::
+
+
 
 ## Beispiele mit App
 
@@ -100,7 +130,8 @@ Fragen
  - Hinarbeiten auf Beobachtungen: Kann mit einfachen Signalen und Superpositionsprinzip viele Eingänge darstellen und Ausgänge berechnen
 
 
- ## Lernziele heute
+
+## Lernziele heute
 
  - Ausgang für exponentielle Eingänge
  - Übertragungsfunktion
@@ -138,7 +169,7 @@ flowchart TD
     C1["$$\dot{x} = Ax + Bu, \quad y = Cx + Du$$"]
 
     E["Übertragungsfunktion"]
-    E1["$$G(s) = \frac{Y(s)}{U(s)}$$"]
+    E1["heute"]
     
     F["Reglerentwurf"]    
 
@@ -148,6 +179,67 @@ flowchart TD
     B --> C
     B ~~~ C1
     C --schwer--> F
+    C --einfach--> E
+    C ~~~ E1
+    E --einfach--> F
+    
+    classDef model fill:#e1f5fe,stroke:#039be5,stroke-width:2px
+    classDef process fill:#e8f5e9,stroke:#43a047,stroke-width:2px
+    classDef equation fill:#f5f5f5,stroke:#666,stroke-dasharray: 5 5
+    
+    class A process
+    class B,C,E model
+    class F process
+    class B1,C1,E1 equation
+```
+
+</div>
+
+::: notes
+Fragen
+ - Warum könnte es schwer sein direkt von der Zustandsraumdarstellung den Reglerentwurf durchzuführen? Bekannt ist Ihnen bereits die Faltungsgleichung, die schwierig auszuwerten ist. Dazu lernen Sie heute weitere Gründe, weswegen der alternative Weg durch den Frequenzbereich und Übertragungsfunktionen einfacher ist.
+:::
+
+## Motivation
+
+<div style="text-align: center;">
+
+```{mermaid}
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#e1f5fe',
+    'primaryTextColor': '#000000',
+    'primaryBorderColor': '#039be5',
+    'lineColor': '#333333',
+    'fontFamily': 'Source Sans Pro, Arial, sans-serif'
+  },
+  'flowchart': {
+    'nodeSpacing': 30,
+    'rankSpacing': 40,
+    'padding': 5
+  }
+}}%%
+flowchart TD
+    A["🛩️<br>Reales System"] 
+
+    B["Modell"]
+    B1["$$\dot{x}_{nl} = f(x_{nl},u), \quad y_{nl} = h(x_{nl},u)$$"]
+
+    C["Linearisierung<br>und Normierung"]
+    C1["$$\dot{x} = Ax + Bu, \quad y = Cx + Du$$"]
+
+    E["Übertragungsfunktion"]
+    E1["heute!"]
+    
+    F["Reglerentwurf"]    
+
+
+    A --> B
+    A ~~~ B1
+    B --> C
+    B ~~~ C1
+    C --Faltungsgleichung--> F
     C --einfach--> E
     C ~~~ E1
     E --einfach--> F
