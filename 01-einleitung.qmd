@@ -5,7 +5,9 @@ date: "2025-09-19"
 output: revealjs
 format:
   revealjs:
-    incremental: false   
+    incremental: false
+    theme: default
+    mainfont: "Source Sans Pro"    
 ---
 
 ## Wiederholung
@@ -28,7 +30,7 @@ Fragen
 ## Wiederholung
 
  - Mathematische Beschreibungen im Zeitbereich
-   - Zustandsraumdarstellung für lineare Systeme <!-- Lunze Gl. 4.43 mit skalarem u, also Vektoren b, c, Skalar d -->
+   - Zustandsraumdarstellung für lineare Systeme <!-- Lunze Gl. 4.43 mit SISO, d.h. skalarem u, also Vektoren b, c, Skalar d -->
      $$
      \dot{x}(t) = A x(t) + B u(t), \quad x(0) = x_0
      $$
@@ -41,7 +43,7 @@ Fragen
 ::: notes
 Fragen
  - Warum linear? Weil A, B, C, D nicht von x oder u abhängen.
- - Welche Größen haben A sowie B, C sowie D? nxn, nx1, 1xn, Skalar (wenn u und y Länge 1 haben)
+ - Welche Größen haben A sowie B, C sowie D? nxn, nx1, 1xn, Skalar (wenn SISO, d.h. u und y Länge 1 haben)
 :::
 
 
@@ -64,9 +66,12 @@ Fragen
  - Mathematische Beschreibungen im Zeitbereich
    - Zustandsraumdarstellung für lineare Systeme
    - Differentialgleichung linear
-   - Differentialgleichung nichtlinear
+   - Differentialgleichung nichtlinear <!-- KJA Gl. 4.1 -->
      $$
-     \dot{x}(t) = f(x,u,t), \quad x(0) = x_0
+     \dot{x}(t) = f(x,u), \quad x(0) = x_0
+     $$
+     $$
+     y = h(x,u)
      $$
 
 ## Wiederholung
@@ -88,3 +93,73 @@ Fragen
    - $u$: Eingang
    - $x$: Zustand (bestimmt zusammen mit Verlauf der Eingänge spätere Zustände und Ausgänge eindeutig) <!-- Lunze Def. 4.1 -->
    - $y$: Ausgang
+
+## Beispiele mit App
+
+ - App: linearisiertes Beispielmodell, Übergangsverhalten, stationäres Verhalten, sinusförmige Eingangssignale, Fourieranalyse und Superposition
+ - Hinarbeiten auf Beobachtungen: Kann mit einfachen Signalen und Superpositionsprinzip viele Eingänge darstellen und Ausgänge berechnen
+
+
+ ## Lernziele heute
+
+ - Ausgang für exponentielle Eingänge
+ - Übertragungsfunktion
+ - Umrechnung von Zustandsraum zu Übertragungsfunktion und umgekehrt
+ - Laplace-Transformation und umgekehrte Laplace-Transformation
+
+
+## Motivation
+
+<div style="text-align: center;">
+
+```{mermaid}
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#e1f5fe',
+    'primaryTextColor': '#000000',
+    'primaryBorderColor': '#039be5',
+    'lineColor': '#333333',
+    'fontFamily': 'Source Sans Pro, Arial, sans-serif'
+  },
+  'flowchart': {
+    'nodeSpacing': 30,
+    'rankSpacing': 40,
+    'padding': 5
+  }
+}}%%
+flowchart TD
+    A["🛩️<br>Reales System"] 
+
+    B["Modell"]
+    B1["$$\dot{x}_{nl} = f(x_{nl},u), \quad y_{nl} = h(x_{nl},u)$$"]
+
+    C["Linearisierung<br>und Normierung"]
+    C1["$$\dot{x} = Ax + Bu, \quad y = Cx + Du$$"]
+
+    E["Übertragungsfunktion"]
+    E1["$$G(s) = \frac{Y(s)}{U(s)}$$"]
+    
+    F["Reglerentwurf"]    
+
+
+    A --> B
+    A ~~~ B1
+    B --> C
+    B ~~~ C1
+    C --schwer--> F
+    C --einfach--> E
+    C ~~~ E1
+    E --einfach--> F
+    
+    classDef model fill:#e1f5fe,stroke:#039be5,stroke-width:2px
+    classDef process fill:#e8f5e9,stroke:#43a047,stroke-width:2px
+    classDef equation fill:#f5f5f5,stroke:#666,stroke-dasharray: 5 5
+    
+    class A process
+    class B,C,E model
+    class F process
+    class B1,C1,E1 equation
+```
+
+</div>
