@@ -8,6 +8,19 @@ format:
     incremental: false
     theme: default
     mainfont: "Source Sans Pro"    
+    fontsize: "28px"
+    width: 1280
+    height: 720
+    margin: 0.1
+    auto-stretch: true
+    scrollable: true
+    css: |
+      .smaller {
+        font-size: 0.8em;
+      }
+      .tiny {
+        font-size: 0.6em;
+      }
 ---
 
 ## Wiederholung 1
@@ -255,3 +268,45 @@ flowchart TD
 ```
 
 </div>
+
+
+## Lösung der Faltungsgleichung
+
+ - Faltungsgleichung beschreibt Ausgang vollständig
+     - $y(t) = C e^{At} x_0 + \int_0^t C e^{A(t-\tau)} B u(\tau) d\tau + D u(t)$ <!-- KJA Gl. 5.15 und Lunze Gl. 5.17-->
+ - Die homogene Lösung $e^{At} x_0$ beschreibt das Verhalten des Systems ohne Eingang und kann ohne Schwierigkeiten berechnet werden
+ - Die erzwungene Lösung $\int_0^t e^{A(t-\tau)} B u(\tau) d\tau$ beschreibt das Verhalten des Systems mit Eingang und stellt uns mit Faltungsintegral vor Herausforderungen
+ - Um ein besseres Verständnis zu erhalten analysieren wir die Ausgänge für einfache Grundformen als Eingänge auf eine Weise die
+   - einfach zu berechnen ist: Die Ausgänge haben die gleiche Form wie die Eingänge
+   - reichhaltige Ergebnisse verspricht: Die meisten Eingänge können als Linearkombination von Grundformen beschrieben werden
+ - Der Ausgang kann dann Dank Superposition aus den Ausgängen für die Grundformen berechnet werden
+
+
+## Exponentielle Eingänge
+
+ - Ansatz für Grundform: $u(t) = e^{s t}$ mit $s \in \mathbb{C}$, einer komplexen Zahl
+ - Ist $s$ reell, dann ergibt $u(t)$ eine einfache Exponentialfunktion
+ - Ist $s$ komplex, dann verwendet man immer ein Paar von komplexer Zahl $s$ und Konjugierter $s^*$, so dass die Summe der Grundformen reell ist
+ - Ist $s = j \omega$ und $s^* = -j \omega$, dann ergibt die Summe der Grundformen eine Kosinusfunktion
+     - $u(t) + u^*(t) = e^{j \omega t} + e^{-j \omega t} = 2 \cos(\omega t)$
+- Ist $s = \sigma + j \omega$ und $s^* = \sigma - j \omega$, dann ergibt die Summe der Grundformen eine Kosinusfunktion mit exponentiell auf- oder abklingenden Amplitude
+     - $u(t) + u^*(t) = e^{\sigma t} e^{j \omega t} + e^{-\sigma t} e^{-j \omega t} = 2 e^{\sigma t} \cos(\omega t)$
+
+## Ausgänge für exponentielle Eingänge 1
+
+ - Faltungsgleichung beschreibt Ausgang vollständig
+     - $y(t) = C e^{At} x_0 + \int_0^t C e^{A(t-\tau)} B u(\tau) d\tau + D u(t)$ <!-- KJA Gl. 5.15 und Lunze Gl. 5.17-->
+ - Einsetzen von $u(t) = e^{s t}$
+     - $y(t) = C e^{At} x_0 + \int_0^t C e^{A(t-\tau)} B e^{s \tau} d\tau + D e^{s t} = C e^{At} x_0 + C e ^{A t} \int_0^t e^{(sI-A) \tau} B d\tau + D e^{s t}$ <!-- KJA S. 231 -->
+ - Wenn $(sI-A)$ invertierbar ist ($s$ ist kein Eigenwert von $A$), dann können wir analytisch integrieren
+     - $y(t) = C e^{At} x_0 + C e ^{A t} (sI-A)^{-1} \left[ e^{(sI-A) t} - I \right] B + D e^{s t}$
+
+## Ausgänge für exponentielle Eingänge 2
+
+ - Umformen
+     - $y(t) = \underbrace{C e^{At} \left[ x_0 - (sI-A)^{-1} B \right]}_{\text{transiente Antwort}} + \underbrace{\left[ C (sI-A)^{-1} B + D \right]}_{\text{stationäre Antwort}} e^{s t}$
+ - Wenn das System asymptotisch stabil ist, dann wird die transiente Antwort gegen Null gehen
+ - Die stationäre Antwort für Grundform $u(t) = e^{s t}$ als Eingang kann geschrieben werden
+   $y_{stat}(t) = G(s) e^{s t}$
+   mit einer komplexen Zahl $G(s)$
+ - Die Funktion $G(s)$ nennt man die *Übertragungsfunktion*. Sie beschreibt wie das System den Eingang in Grundform $e^{s t}$ zum Ausgang $G(s) e^{s t}$ transformiert.
