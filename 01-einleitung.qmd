@@ -310,3 +310,32 @@ flowchart TD
    $y_{stat}(t) = G(s) e^{s t}$
    mit einer komplexen Zahl $G(s)$
  - Die Funktion $G(s)$ nennt man die *Übertragungsfunktion*. Sie beschreibt wie das System den Eingang in Grundform $e^{s t}$ zum Ausgang $G(s) e^{s t}$ transformiert.
+
+## Eine Tür öffnet sich...
+
+::: {.columns}
+::: {.column width="70%"}
+ - Ansatz mit Grundformen ermöglicht die Faltungsgleichung zu lösen.
+ - Die stationäre Lösung $y_{stat}(t)$ wurde im Zeitbereich beschrieben.
+ - Es liegt nahe, die Übertragungsfunktion $G(s)$ weiter zu untersuchen
+   - Hierzu führen wir mathematische Werkzeuge ein (Laplace-Transformation, Frequenzanalyse, komplexe Zahlen...)
+   - Dieser Student liess sich davon beeindrucken
+   - Konkrete Aufgaben verwenden immer reelle Zahlen (z.B. über konjugierte komplexe Zahlen)
+   - Lassen Sie dies nicht geschehen und glauben Sie an das Licht am Ende des Tunnels. Klassische Werkzeuge für lineare zeitinvariante Systeme sind erstaunlich mächtig und einfach zu benutzen!
+:::
+::: {.column width="30%"}
+![Ein Student](Bilder/student.jpeg)
+:::
+::: <!-- end columns -->
+
+## ...in den Frequenzbereich
+
+ - Betrachten wir einen sinusförmigen Eingang (zwei Grundformen, $s = \pm j \omega$)
+   $$u(t) = e^{j \omega t} + e^{-j \omega t} = 2 \cos(\omega t) $$
+ - Die stationäre Antwort für diese Eingänge und eine beliebige Übertragungsfunktion $G(s)$ ist
+   $$y_{stat}(t) = G(j \omega) e^{j \omega t} + G(-j \omega) e^{-j \omega t}$$
+   $$ = M e^{\theta} e^{j \omega t} + M^* e^{-\theta^*} e^{-j \omega t} = 2 M \cos(\omega t + \theta)$$
+ - Der Ausgang ist also ebenfalls ein sinusförmiges Signal der gleichen Frequenz $\omega$.
+   - Die Amplitude wird durch $M = \vert G(j \omega) \vert$ verstärkt
+   - Die Phase wird durch $\theta = \arg(G(j \omega)) = arctan(\frac{\Im(G(j \omega))}{\Re(G(j \omega))})$ verschoben <!-- KJA S. 250, Lunze Gl. 6.64 -->
+   
