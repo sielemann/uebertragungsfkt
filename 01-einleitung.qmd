@@ -301,7 +301,8 @@ flowchart TD
  - Wenn $(sI-A)$ invertierbar ist ($s$ ist kein Eigenwert von $A$), dann können wir analytisch integrieren
      - $y(t) = C e^{At} x_0 + C e ^{A t} (sI-A)^{-1} \left[ e^{(sI-A) t} - I \right] B + D e^{s t}$
 
-## Ausgänge für exponentielle Eingänge 2
+## Ausgänge für exponentielle Eingänge 2 \label{sec:herleitung2}
+
 
  - Umformen
      - $y(t) = \underbrace{C e^{At} \left[ x_0 - (sI-A)^{-1} B \right]}_{\text{transiente Antwort}} + \underbrace{\left[ C (sI-A)^{-1} B + D \right]}_{\text{stationäre Antwort}} e^{s t}$
@@ -326,7 +327,7 @@ flowchart TD
 ::: {.column width="30%"}
 ![Ein Student](Bilder/student.jpeg)
 :::
-::: <!-- end columns -->
+:::
 
 ## ...in den Frequenzbereich
 
@@ -339,3 +340,62 @@ flowchart TD
    - Die Amplitude wird durch $M = \vert G(j \omega) \vert$ verstärkt
    - Die Phase wird durch $\theta = \arg(G(j \omega)) = arctan(\frac{\Im(G(j \omega))}{\Re(G(j \omega))})$ verschoben <!-- KJA S. 250, Lunze Gl. 6.64 -->
    
+## Lineare, zeitinvariante Systeme erlauben Superposition
+
+ - Dank Superposition finden wir die stationären Ausgänge für komplexere Eingänge über Zerlegung der Eingänge in Grundformen^[Viele periodische und nichtperiodische Signale, Sprung, Dirac-Impuls aber keine Signale, die schneller als exponentiell wachsen wie $t^t$ oder unendlich viele Diskontinuitäten enthalten. Formale Definition folgt später.]
+ - Wiederholung: Wenn
+   - $y_1(t)$ die stationäre Antwort für Eingang $u_1(t)$ ist
+   - $y_2(t)$ die stationäre Antwort für Eingang $u_2(t)$ ist
+   
+   Dann:
+   - Ist $\alpha y_1(t) + \beta y_2(t)$ die stationäre Antwort für Eingang $\alpha u_1(t) + \beta u_2(t)$
+
+   Allgemeiner:
+   - $u(t) = \sum_{i=1}^N U_i e^{s_i t} \implies y(t) = \sum_{i=1}^N U_i G(s_i) e^{s_i t}$
+
+## Rechenbeispiel
+
+Folgt
+
+## Konvertierung Zustandsraum zu Übertragungsfunktion
+
+ - Wie auf Folie \label{sec:herleitung2} gezeigt
+   $G(s) = C (sI-A)^{-1} B + D$  <!-- Lunze Gl. 6.75 -->
+ - Wenn $A$ diagnonal mit Eigenwerten $\lambda_i$ ist, dann erhalten wir
+   $G(s) = \sum_{i=1}^N \frac{c_i b_i}{s-\lambda_i}$
+ - Wenn $A$ nicht diagnonal ist, dann per Hand Faddeev-Algorithmus anwenden (Lunze Regelungstechnik 1) oder rechnergestützt Varga und Sima.
+
+
+
+## Rechenregeln: Blockdiagramme...
+
+
+## Beispiele von Übertragungsfkt
+
+Integrator, Ableitung, Sprung...
+
+
+## Darstellungen: Bode...
+
+
+## Nullstellen
+
+
+## Pole
+
+
+## Rechenbeispiele
+
+
+
+## Referenzen
+
+Aström, K.J., Murray, R.M. (2008). Feedback Systems: An Introduction for Scientists and Engineers. Princeton University Press.
+
+Lunze, D. (2022). Regelungstechnik 1: Grundlagen und Praktikum. Springer Spektrum.
+
+Varga, A, Sima, V.: "Numerically stable algorithm for transfer function matrix evaluation" Int. J. 
+Control, vol. 33, No. 6, pp. 1123-1133, 1981 
+
+Tani, J. (2017). Control Systems I. Lecture Notes. ETH Zurich.
+
