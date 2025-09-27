@@ -361,9 +361,113 @@ Folgt
 
  - Wie auf Folie \label{sec:herleitung2} gezeigt
    $G(s) = C (sI-A)^{-1} B + D$  <!-- Lunze Gl. 6.75 -->
- - Wenn $A$ diagnonal mit Eigenwerten $\lambda_i$ ist, dann erhalten wir
-   $G(s) = \sum_{i=1}^N \frac{c_i b_i}{s-\lambda_i}$
+ - Wenn $A$ diagnonal mit Eigenwerten $\lambda_i$ ist (``kanonische Form``), dann erhalten wir
+   $G(s) = \frac{c_1 b_1}{s-\lambda_1} + \frac{c_2 b_2}{s-\lambda_2} + \dots \frac{c_n b_n}{s-\lambda_n} + d$ <!-- Lunze Gl. 6.71 -->
  - Wenn $A$ nicht diagnonal ist, dann per Hand Faddeev-Algorithmus anwenden (Lunze Regelungstechnik 1) oder rechnergestützt Varga und Sima.
+
+## Konvertierung Übertragungsfunktion zu Zustandsraum 1
+
+ - Bei vorgegebener Übertragungsfunktion $G(s)$ gibt es keine eindeutig definierte Zustandsraumdarstellung
+ - Es ist naheliegend eine Zustandsraumdarstellung mit minimaler Anzahl an Zuständen zu wählen (``minimale Realisierung``). Solch eine Realisierung ist immer steuerbar und beobachtbar.
+ - Wenn sich die Übertragunsfunktion in Partialbrüchen folgender Form schreiben lässt 
+   $G(s) = \frac{p_1}{s-\lambda_1} + \frac{p_2}{s-\lambda_2} + \dots \frac{p_n}{s-\lambda_n} + d$ 
+
+   dann ist eine Kanonische Form
+
+   $A = \begin{bmatrix}
+   \lambda_1 &        &      \\
+             & \ddots &      \\
+             &        & \lambda_n  \\
+   \end{bmatrix}, \quad
+   B = \begin{bmatrix}
+   \sqrt{p_1} \\
+   \vdots \\
+   \sqrt{p_n} 
+   \end{bmatrix}$
+   
+   $C = \begin{bmatrix}
+   \sqrt{p_1} & \dots & \sqrt{p_n}  \\
+   \end{bmatrix}, \quad
+   D = \begin{bmatrix}d\end{bmatrix}$ 
+
+::: notes
+Fragen
+ - Kann jemand erkennen warum die Konvertierung von Übertragungsfunktion zu Zustandsraum nicht eindeutig ist? u=Ax + Bu -> Die Verstärkung von Eingängen im Vergleich zu Zuständen ist nicht eindeutig für stationäre Antwort. Wir wählen die beiden Werte gleich als Wurzeln der Zähler der Partialbrüche (Vergleich zu der vorherigen Folie).
+:::
+
+## Konvertierung Übertragungsfunktion zu Zustandsraum 2
+
+ - Im Allgemeinen kann die Übertragungsfunktion oft nicht in den einfachen Partialbrüchen dargestellt werden
+ - Stattdessen liegt die Übertragungsfunktion oft in der Form vor
+   $G(s) = \frac{b_{n-1}s^{n-1} + \dots + b_1 s + b_0}{s^n + a_{n-1}s^{n-1} + \dots + a_1 s + a_0} + d$
+
+ - In diesem Fall wählt man i.d.R. die ``Regelungsnormalform`` (auch steuerbare kanonische Form, Engl. ``controllable canonical form``) als minimale Realisierung
+   
+   $A = \begin{bmatrix}
+   0 & 1 & 0 & \dots & 0 \\
+   0 & 0 & 1 & \dots & 0 \\
+   \vdots & \vdots & \vdots & \ddots & \vdots \\
+   0 & 0 & 0 & \dots & 1 \\
+   -a_0 & -a_1 & -a_2 & \dots & -a_{n-1} \\
+   \end{bmatrix}, \quad
+   B = \begin{bmatrix}
+   0 \\
+   0 \\
+   \vdots \\
+   0 \\
+   1 \\
+   \end{bmatrix}$
+   
+   $C = \begin{bmatrix}
+   b_0 & b_1 & b_2 & \dots & b_{n-1} \\
+   \end{bmatrix}, \quad
+   D = \begin{bmatrix}d\end{bmatrix}$
+
+
+## Ein weiterer Schritt in den Frequenzbereich
+
+ - Wir haben nun die Strecke genau beschrieben (Zustandsraum, Übertragungsfunktion).
+ - Als Eingänge verwenden wir Summen konjugiert komplexer Argumente für Grundformen $e^{s t}$, die reelle Zahlen ergeben. 
+
+   $u(t) = \sum_{i=1}^N U_i e^{s_i t} \implies y(t) = \sum_{i=1}^N U_i G(s_i) e^{s_i t}$
+
+   Diese einfache, händische Handhabung der Eingänge ist (noch) eine erhebliche Einschränkung.
+
+ - Ziel: Anwendung der Laplace-Transformation (Vgl. Fourier-Transformation) um Eingangssignale in (die hier eingeführten) Grundformen zu zerlegen
+
+## Laplace-Transformation 1
+
+ - Transformiert Eingang $u(t)$ aus dem Zeitbereich in den Frequenzbereich $U(s)$ (dargestellt in Verstärkung und Phasenverschiebung wie bisher mit komplexen Zahlen) 
+ - Diese Transformation schreiben wir als $\mathcal{L}\{u\} = U$
+ - Die Transformation ist definiert durch
+   $U(s) := \int_{0}^{\infty} u(t) e^{-s t} dt$ <!-- KJA eq. 8.22, Lunze Gl. 6.45 -->
+ - Bedingungen: *Dirichlet-Bedingung*, $\int_{-\infty}^{\infty} \vert u(t) \vert e^{- \delta t} dt < \infty$, d.h., $u(t)$ dar nicht schneller als exponentiell wachsen (nicht $t^t$) und $u(t)$ darf nicht unendlich viele Diskontinuitäten enthalten.
+
+## Laplace-Transformation 2
+
+ - Die inverste Laplace-Transformation transformiert aus dem Frequenzbereich $U(s)$ in den Zeitbereich 
+ - Diese Transformation schreiben wir als $\mathcal{L^{-1}}\{U\} = u$
+ - Die inverse Transformation ist definiert durch
+   $u(t) := \frac{1}{2\pi j} \lim_{\omega \to \infty} \int_{\gamma - j\omega}^{\gamma + j\omega} U(s) e^{-s t} ds$ <!-- Lunze Gl. 6.49 -->
+ - Sie müssen diese Laplace-Integrale nicht selber lösen sondern den praktischen Umgang mit Zeit- und Frequenzbereich verstehen.
+
+ ## Zwischenzusammenfassung
+
+ - Wir finden die (stationären) Ausgänge im Zeitbereich (wenn benötigt) über
+
+   $y(t) = \frac{1}{2\pi j} \lim_{\omega \to \infty} \int_{\gamma - j\omega}^{\gamma + j\omega} G(s) U(s) e^{-s t} ds$
+
+   Beachte, dies ist gleich
+
+   $y(t) = \mathcal{L^{-1}}\{GU\}(t)$
+
+ - Mit der Laplacetransformation finden bzw. definieren wir
+
+   $\mathcal{L}\{y\}(s) = G(s)U(s)$   
+
+   $\implies Y(s) = G(s)U(s)$   
+
+ - Wenn wir uns an den Frequenzbereich halten und Signale darin betrachten lernen, dann können viele Operationen einfacher durchgeführt werden (wie diese Multiplikation, i.d.R. Algebra statt Analysis)
 
 
 
