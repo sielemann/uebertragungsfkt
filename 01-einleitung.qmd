@@ -109,11 +109,12 @@ Fragen
 
 ## Wiederholung 3
 
- - Wie können wir Lösungen für lineare Systeme berechnen?
+ - Wie können Simulationsaufgaben für lineare und nichtlineare Systeme berechnet werden? Welche Aufgaben gibt es?
    - ?
 
 ::: notes
 Fragen
+ - Welche Simulationsaufgaben kennen Sie? Lösung für beliebige, zeitvariable Eingänge (im Zeitbereich), stationäre Initialisierung, Linearisierung
  - Welche analytischen Methoden kennen Sie? Woraus wird die Lösung zusammengesetzt (besteht sie)?
  - Welche numerischen Methoden kennen Sie?
 :::
@@ -121,14 +122,19 @@ Fragen
 
 ## Wiederholung 3
 
- - Wie können wir Lösungen für lineare Systeme berechnen?
-   - Analytisch mit *Faltungsgleichung* (auch *Bewegungsgleichung* bzw. *Bewegungsgleichung für Ausgänge* in Lunze)
-     - $x(t) = e^{At} x_0 + \int_0^t e^{A(t-\tau)} B u(\tau) d\tau$ <!-- KJA Gl. 5.14 und Lunze Gl. 5.13-->
-     - $y(t) = C e^{At} x_0 + \int_0^t C e^{A(t-\tau)} B u(\tau) d\tau + D u(t)$ <!-- KJA Gl. 5.15 und Lunze Gl. 5.17-->
-   - Numerische Verfahren für gewöhnliche Differenzialgleichungen
-     - Euler
-     - Heun
-     - Runge-Kutta etc.
+ - Wie können Simulationsaufgaben für lineare und nichtlineare Systeme berechnet werden? Welche Aufgaben gibt es?
+   - Lösung für beliebige, zeitvariable Eingänge
+      - Analytisch mit *Faltungsgleichung* (auch *Bewegungsgleichung* bzw. *Bewegungsgleichung für Ausgänge* in Lunze)
+        - $x(t) = e^{At} x_0 + \int_0^t e^{A(t-\tau)} B u(\tau) d\tau$ <!-- KJA Gl. 5.14 und Lunze Gl. 5.13-->
+        - $y(t) = C e^{At} x_0 + \int_0^t C e^{A(t-\tau)} B u(\tau) d\tau + D u(t)$ <!-- KJA Gl. 5.15 und Lunze Gl. 5.17-->
+      - Numerische Verfahren für gewöhnliche Differenzialgleichungen
+        - Euler, Heun, Runge-Kutta
+        - Mehrschrittverfahren etc.
+   - Stationäre Initialisierung
+     - Analytische oder numerische Lösung des algebraischen Systems
+   - Linearisierung
+     - Analytische oder numerische Auswertung von partiellen Ableitungen
+   
 
 ::: notes
 Fragen
@@ -140,7 +146,7 @@ Fragen
 ## Beispiele mit App
 
  - App: linearisiertes Beispielmodell, Übergangsverhalten, stationäres Verhalten, sinusförmige Eingangssignale, Fourieranalyse und Superposition
- - Hinarbeiten auf Beobachtungen: Kann mit einfachen Signalen und Superpositionsprinzip viele Eingänge darstellen und Ausgänge berechnen
+ - Hinarbeiten auf Beobachtungen: Kann mit einfachen Signalen und Superpositionsprinzip viele Eingänge darstellen und Ausgänge berechnen. Beim Ändern von Eingangsfrequenz ändern sich Frequenz und Verstärkung von Ausgängen.
 
 
 
@@ -281,6 +287,11 @@ flowchart TD
    - reichhaltige Ergebnisse verspricht: Die meisten Eingänge können als Linearkombination von Grundformen beschrieben werden
  - Der Ausgang kann dann Dank Superposition aus den Ausgängen für die Grundformen berechnet werden
 
+::: notes
+Fragen
+ - Welche Ideen haben Sie für Eingänge, die gleiche Form wie Ausgänge haben? Sprung vielleicht? Schwingungen!
+:::
+
 
 ## Exponentielle Eingänge
 
@@ -291,6 +302,8 @@ flowchart TD
      - $u(t) + u^*(t) = e^{j \omega t} + e^{-j \omega t} = 2 \cos(\omega t)$
 - Ist $s = \sigma + j \omega$ und $s^* = \sigma - j \omega$, dann ergibt die Summe der Grundformen eine Kosinusfunktion mit exponentiell auf- oder abklingenden Amplitude
      - $u(t) + u^*(t) = e^{\sigma t} e^{j \omega t} + e^{-\sigma t} e^{-j \omega t} = 2 e^{\sigma t} \cos(\omega t)$
+
+<!-- TODO: Bild verschiedener u(t) für reelle s sowie konj komplexe Paare -->
 
 ## Ausgänge für exponentielle Eingänge 1
 
@@ -355,20 +368,20 @@ flowchart TD
 
 ## Rechenbeispiel
 
-Folgt
+Beispiele 6.1 nach Lunze: DGl, Zustandsraumdarstellung. Übertragungsfunktion aus A, B, C, D berechnen. Aufgabe: Finde stationäre Lösung für u = cos( omega t). Verwende konjugiert komplexes Paar von s. Berechne u1, u2, y1, y2. Berechne y = y1+y2. Plot y_stat, y, u.
 
 ## Konvertierung Zustandsraum zu Übertragungsfunktion
 
  - Wie auf Folie \label{sec:herleitung2} gezeigt
    $G(s) = C (sI-A)^{-1} B + D$  <!-- Lunze Gl. 6.75 -->
- - Wenn $A$ diagnonal mit Eigenwerten $\lambda_i$ ist (``kanonische Form``), dann erhalten wir
+ - Wenn $A$ diagnonal mit Eigenwerten $\lambda_i$ ist (*kanonische Form*), dann erhalten wir
    $G(s) = \frac{c_1 b_1}{s-\lambda_1} + \frac{c_2 b_2}{s-\lambda_2} + \dots \frac{c_n b_n}{s-\lambda_n} + d$ <!-- Lunze Gl. 6.71 -->
- - Wenn $A$ nicht diagnonal ist, dann per Hand Faddeev-Algorithmus anwenden (Lunze Regelungstechnik 1) oder rechnergestützt Varga und Sima.
+ - Wenn $A$ nicht diagnonal ist, dann per Hand Faddeev-Algorithmus anwenden (Lunze Regelungstechnik 1) oder (für große Systeme) rechnergestützt Varga und Sima.
 
 ## Konvertierung Übertragungsfunktion zu Zustandsraum 1
 
  - Bei vorgegebener Übertragungsfunktion $G(s)$ gibt es keine eindeutig definierte Zustandsraumdarstellung
- - Es ist naheliegend eine Zustandsraumdarstellung mit minimaler Anzahl an Zuständen zu wählen (``minimale Realisierung``). Solch eine Realisierung ist immer steuerbar und beobachtbar.
+ - Es ist naheliegend eine Zustandsraumdarstellung mit minimaler Anzahl an Zuständen zu wählen (*minimale Realisierung*). Solch eine Realisierung ist immer steuerbar und beobachtbar.
  - Wenn sich die Übertragunsfunktion in Partialbrüchen folgender Form schreiben lässt 
    $G(s) = \frac{p_1}{s-\lambda_1} + \frac{p_2}{s-\lambda_2} + \dots \frac{p_n}{s-\lambda_n} + d$ 
 
@@ -401,7 +414,7 @@ Fragen
  - Stattdessen liegt die Übertragungsfunktion oft in der Form vor
    $G(s) = \frac{b_{n-1}s^{n-1} + \dots + b_1 s + b_0}{s^n + a_{n-1}s^{n-1} + \dots + a_1 s + a_0} + d$
 
- - In diesem Fall wählt man i.d.R. die ``Regelungsnormalform`` (auch steuerbare kanonische Form, Engl. ``controllable canonical form``) als minimale Realisierung
+ - In diesem Fall wählt man i.d.R. die *Regelungsnormalform* (auch steuerbare kanonische Form, Engl. *controllable canonical form*) als minimale Realisierung
    
    $A = \begin{bmatrix}
    0 & 1 & 0 & \dots & 0 \\
@@ -424,7 +437,7 @@ Fragen
    D = \begin{bmatrix}d\end{bmatrix}$
 
 
-## Ein weiterer Schritt in den Frequenzbereich
+## Der zweite Schritt in den Frequenzbereich
 
  - Wir haben nun die Strecke genau beschrieben (Zustandsraum, Übertragungsfunktion).
  - Als Eingänge verwenden wir Summen konjugiert komplexer Argumente für Grundformen $e^{s t}$, die reelle Zahlen ergeben. 
@@ -451,7 +464,7 @@ Fragen
    $u(t) := \frac{1}{2\pi j} \lim_{\omega \to \infty} \int_{\gamma - j\omega}^{\gamma + j\omega} U(s) e^{-s t} ds$ <!-- Lunze Gl. 6.49 -->
  - Sie müssen diese Laplace-Integrale nicht selber lösen sondern den praktischen Umgang mit Zeit- und Frequenzbereich verstehen.
 
- ## Zwischenzusammenfassung
+## Zwischenzusammenfassung
 
  - Wir finden die (stationären) Ausgänge im Zeitbereich (wenn benötigt) über
 
@@ -469,14 +482,14 @@ Fragen
 
  - Wenn wir uns an den Frequenzbereich halten und Signale darin betrachten lernen, dann können viele Operationen einfacher durchgeführt werden (wie diese Multiplikation, i.d.R. Algebra statt Analysis)
 
+## Beispiele von Übertragungsfkt
+
+Integrator, Ableitung, Sprung...
+
 
 
 ## Rechenregeln: Blockdiagramme...
 
-
-## Beispiele von Übertragungsfkt
-
-Integrator, Ableitung, Sprung...
 
 
 ## Darstellungen: Bode...
@@ -490,7 +503,19 @@ Integrator, Ableitung, Sprung...
 
 ## Rechenbeispiele
 
+Erkennen von Nullstellen und Polen in Systemen aus Bodediagramm. Darstellung von entsprechenden Ergebnissen im Zeitbereich.
 
+Reglerentwurf prinzipiell? Optimierungs- und simulationsbasiert einerseits (ohne Übertragungsfunktion), andererseits Synthese mit Übertragungsfunktion.
+
+## Lernziele
+
+ - Vorteile der Betrachtung im Frequenzbereich: Einfache (algebraische) Berechnung!
+ - Ausgang für exponentielle Eingänge
+ - Übertragungsfunktion
+ - Umrechnung von Zustandsraum zu Übertragungsfunktion und umgekehrt
+ - Laplace-Transformation und umgekehrte Laplace-Transformation
+ - *Nullstellen und Pole*
+ - *Bode-Diagramme*
 
 ## Referenzen
 
