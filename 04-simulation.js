@@ -17,7 +17,6 @@ const state = {
     // Simulation state
     time: 0,
     isPlaying: false,
-    showForces: true,
     
     // Simulation data (will store full trajectory)
     trajectory: [],
@@ -100,6 +99,13 @@ class SpringDamperMassSystem {
     // Simulate entire trajectory
     simulateTrajectory(tMax) {
         this.reset();
+        
+        // Store initial state at t=0
+        this.history.t.push(0);
+        this.history.x3.push(this.x[0]);
+        this.history.x3d.push(this.x[1]);
+        this.history.u.push(this.groundPosition(0));
+        
         while (this.time < tMax) {
             this.integrate(state.dt);
         }
@@ -228,14 +234,11 @@ class SchematicRenderer {
         // Draw mass at x3
         this.drawMass(centerX, x3ScreenY, massSize);
         
+        // Draw x2 junction marker
+        this.drawPositionMarker(centerX, x2ScreenY, 'x₂');
+        
         // Draw labels
         this.drawLabels(centerX, x1ScreenY, x2ScreenY, x3ScreenY);
-        
-        // Draw forces if enabled
-        if (state.showForces) {
-            const stateData = system.getStateAt(t);
-            this.drawForces(centerX, x2ScreenY, x3ScreenY, stateData.x3d);
-        }
     }
     
     drawGround(x, y) {
@@ -272,11 +275,22 @@ class SchematicRenderer {
         ctx.stroke();
         ctx.setLineDash([]);  // Reset to solid
         
-        // Draw a small circle at the moving attachment point
-        ctx.fillStyle = '#34495e';
+        // Draw larger circle at the moving attachment point (x1)
+        const circleRadius = 12;
+        ctx.fillStyle = '#3498db';  // Blue to match spring
+        ctx.strokeStyle = '#2c3e50';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(x, y2, 6, 0, 2 * Math.PI);
+        ctx.arc(x, y2, circleRadius, 0, 2 * Math.PI);
         ctx.fill();
+        ctx.stroke();
+        
+        // Add "x1" label on the circle
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('x₁', x, y2);
     }
     
     drawSpring(x, yTop, yBottom) {
@@ -336,40 +350,31 @@ class SchematicRenderer {
         
         // Label
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 14px sans-serif';
+        ctx.font = 'bold 16px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`m = ${state.m} kg`, x, y);
+        ctx.fillText('x₃', x, y);
     }
     
-    drawLabels(x, x1Y, x2Y, x3Y) {
+    drawPositionMarker(x, y, label) {
         const ctx = this.ctx;
-        ctx.font = '13px sans-serif';
-        ctx.textAlign = 'left';
+        const radius = 10;
         
-        // Spring label (between x1 and x2)
-        ctx.fillStyle = '#3498db';
-        ctx.fillText(`c = ${state.c} N/m`, x + 35, (x1Y + x2Y) / 2);
+        // Draw circle
+        ctx.fillStyle = '#e74c3c';  // Red to match damper
+        ctx.strokeStyle = '#2c3e50';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
         
-        // Damper label (between x2 and x3)
-        ctx.fillStyle = '#e74c3c';
-        ctx.fillText(`d = ${state.d} Ns/m`, x + 35, (x2Y + x3Y) / 2);
-    }
-    
-    drawForces(x, x2Y, x3Y, velocity) {
-        const ctx = this.ctx;
-        const scale = 50;  // Force scale for visualization
-        
-        // Damper force (proportional to velocity)
-        const Fdamper = -state.d * velocity;
-        
-        // Draw damper force arrow at junction (x2)
-        if (Math.abs(Fdamper) > 0.01) {
-            this.drawArrow(x + 80, x2Y, x + 80, x2Y - Fdamper * scale, '#e74c3c', 'Fd');
-        }
-        
-        // Note: Spring force would be c*(x1-x2), but we're showing damper force for now
-        // Could add spring force visualization if needed by computing from state
+        // Add label
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, x, y);
     }
     
     drawArrow(x1, y1, x2, y2, color, label) {
@@ -789,12 +794,6 @@ function setupEventListeners() {
         document.getElementById('time-slider').value = 0;
         document.getElementById('time-value').textContent = '0.0';
         updatePlayPauseButtons();
-        render();
-    });
-    
-    // Show forces checkbox
-    document.getElementById('show-forces-checkbox').addEventListener('change', (e) => {
-        state.showForces = e.target.checked;
         render();
     });
     
