@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feder-Masse Schwinger nach Lunze 1 Beispiel 4.2/6.1</title>
+    <link rel="stylesheet" href="04-simulation.css">
+</head>
+<body>
+    <div id="main-container">
+        <header>
+            <h1>Feder-Masse Schwinger nach Lunze 1 Beispiel 4.2/6.1</h1>
+            <!-- <p class="subtitle">Übertragungsfunktionen</p> -->
+        </header>
+
+        <div id="content-wrapper">
+            <!-- Left Panel: Controls and Equations -->
+            <aside id="control-panel">
+                <section class="panel-section">
+                    <h2>Parameter</h2>
+                    
+                    <div class="slider-group">
+                        <label for="mass-slider">
+                            Masse m: <span id="mass-value">0.2</span> kg
+                        </label>
+                        <input type="range" id="mass-slider" min="0.1" max="1.0" step="0.05" value="0.2">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="spring-slider">
+                            Federkonstante c: <span id="spring-value">1.0</span> N/m
+                        </label>
+                        <input type="range" id="spring-slider" min="0.1" max="5.0" step="0.1" value="1.0">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="damping-slider">
+                            Dämpfungskonstante d: <span id="damping-value">0.8</span> Ns/m
+                        </label>
+                        <input type="range" id="damping-slider" min="0.1" max="2.0" step="0.1" value="0.8">
+                    </div>
+
+                    <h2>Eingang</h2>
+                    <div class="slider-group">
+                        <label for="amplitude-slider">
+                            Amplitude A: <span id="amplitude-value">0.5</span> m
+                        </label>
+                        <input type="range" id="amplitude-slider" min="0.1" max="1.0" step="0.1" value="0.5">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="frequency-slider">
+                            Frequenz f: <span id="frequency-value">1.0</span> Hz
+                        </label>
+                        <input type="range" id="frequency-slider" min="0.1" max="3.0" step="0.1" value="1.0">
+                    </div>
+                </section>
+
+                <section class="panel-section">
+                    <h2>Simulation</h2>
+                    
+                    <div class="slider-group">
+                        <label for="time-slider">
+                            Zeit: <span id="time-value">0.0</span> s
+                        </label>
+                        <input type="range" id="time-slider" min="0" max="10" step="0.05" value="0">
+                    </div>
+
+                    <div class="button-group">
+                        <button id="play-button" class="control-btn">▶ Play</button>
+                        <button id="pause-button" class="control-btn">⏸ Pause</button>
+                        <button id="reset-button" class="control-btn">↻ Reset</button>
+                    </div>
+
+                    <div class="slider-group">
+                        <label>
+                            <input type="checkbox" id="show-forces-checkbox" checked>
+                            Kräfte anzeigen
+                        </label>
+                    </div>
+                </section>
+
+
+            </aside>
+
+            <!-- Right Panel: Visualizations -->
+            <main id="visualization-panel">
+                <section class="panel-section">
+                    <h2>Systemgleichungen</h2>
+                    <div class="equations">
+                        <h3>Zustandsraumdarstellung</h3>
+                        <p><strong>Zustandsvektor:</strong></p>
+                        <div class="equation">
+                            <strong>x</strong> = [x₃, ẋ₃]ᵀ = [Position, Geschwindigkeit]ᵀ
+                        </div>
+                        
+                        <p><strong>Differentialgleichungen:</strong></p>
+                        <div class="equation">
+                            dx₃/dt = ẋ₃
+                        </div>
+                        <div class="equation">
+                            dẋ₃/dt = (c/m)·u - (c/d)·ẋ₃ - (c/m)·x₃
+                        </div>
+                        
+                        <p><strong>Eingang:</strong></p>
+                        <div class="equation">
+                            u(t) = A·sin(2πf·t)
+                        </div>
+                    </div>
+                </section>
+
+
+                <section class="canvas-section">
+                    <h2>Schematische Darstellung</h2>
+                    <div class="canvas-wrapper">
+                        <canvas id="schematic-canvas"></canvas>
+                    </div>
+                </section>
+
+                <section class="canvas-section">
+                    <h2>Trajektorien</h2>
+                    <div class="canvas-wrapper">
+                        <canvas id="trajectory-canvas"></canvas>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <footer>
+            <p>UniBW 17. Oktober 2025</p>
+        </footer>
+    </div>
+
+    <script src="04-simulation.js"></script>
+</body>
+</html>
