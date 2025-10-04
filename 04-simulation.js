@@ -253,17 +253,17 @@ class SchematicRenderer {
         this.drawMass(centerX + offsetMass, x3ScreenY, massSize, false);  // Don't draw label on mass
         
         // Draw x2 junction marker
-        this.drawPositionMarker(centerX + offsetX2, x2ScreenY, 'x₂');
+        this.drawPositionMarker(centerX + offsetX2, x2ScreenY, 'x₂', '#666');
         
         // Draw x3 label (separate from mass to allow different offset)
-        this.drawPositionMarker(centerX + offsetX3Label, x3ScreenY, 'x₃', '#f39c12');
+        this.drawPositionMarker(centerX + offsetX3Label, x3ScreenY, 'x₃', '#666');
     }
     
     drawHorizontalReferenceLine(x1, x2, y) {
         const ctx = this.ctx;
         
         // Draw thin black horizontal line
-        ctx.strokeStyle = '#000000';
+        ctx.strokeStyle = '#999';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(x1, y);
@@ -277,7 +277,7 @@ class SchematicRenderer {
         const groundHeight = 15;
         
         // Ground rectangle
-        ctx.fillStyle = '#7f8c8d';
+        ctx.fillStyle = '#555';
         ctx.fillRect(x - groundWidth/2 - 0.6*groundWidth, y - groundHeight/2, groundWidth, groundHeight);
         
         // Ground hatching
@@ -296,7 +296,7 @@ class SchematicRenderer {
         const ctx = this.ctx;
         
         // Draw rigid line from ground to moving attachment - stays at centerX
-        ctx.strokeStyle = '#7f8c8d';
+        ctx.strokeStyle = '#555';
         ctx.lineWidth = 3;
         ctx.setLineDash([8, 4]);  // Dashed line
         ctx.beginPath();
@@ -308,7 +308,7 @@ class SchematicRenderer {
         // Draw larger circle at the moving attachment point (x1) - with offset
         const circleRadius = 12;
         const circleX = x + labelOffsetX;
-        ctx.fillStyle = '#3498db';  // Blue to match spring
+        ctx.fillStyle = '#fff';  // White for technical style
         ctx.strokeStyle = '#2c3e50';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -317,11 +317,11 @@ class SchematicRenderer {
         ctx.stroke();
         
         // Add "x1" label on the circle
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = '#000';
         ctx.font = 'bold 14px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('x₁', circleX, y2);
+        ctx.fillText('u', circleX, y2);
     }
     
     drawSpring(x, yTop, yBottom) {
@@ -329,7 +329,7 @@ class SchematicRenderer {
         const coils = 10;
         const amplitude = 20;
         
-        ctx.strokeStyle = '#3498db';
+        ctx.strokeStyle = '#2c3e50';
         ctx.lineWidth = 3;
         ctx.beginPath();
         
@@ -354,14 +354,14 @@ class SchematicRenderer {
         const pistonWidth = 6;
         
         // Damper cylinder
-        ctx.fillStyle = '#ecf0f1';
-        ctx.strokeStyle = '#34495e';
+        ctx.fillStyle = '#e0e0e0';
+        ctx.strokeStyle = '#2c3e50';
         ctx.lineWidth = 2;
         ctx.fillRect(x - width/2, yTop, width, (yBottom - yTop) * 0.3);
         ctx.strokeRect(x - width/2, yTop, width, (yBottom - yTop) * 0.3);
         
         // Piston rod
-        ctx.strokeStyle = '#e74c3c';
+        ctx.strokeStyle = '#555';
         ctx.lineWidth = pistonWidth;
         ctx.beginPath();
         ctx.moveTo(x, yTop + (yBottom - yTop) * 0.15);
@@ -372,7 +372,7 @@ class SchematicRenderer {
     drawMass(x, y, size, showLabel = true) {
         const ctx = this.ctx;
         
-        ctx.fillStyle = '#f39c12';
+        ctx.fillStyle = '#e0e0e0';
         ctx.strokeStyle = '#2c3e50';
         ctx.lineWidth = 2;
         
@@ -501,7 +501,7 @@ class TrajectoryRenderer {
             xScale,
             y3Scale,
             'Position [m]',
-            '#3498db'
+            '#2c3e50'
         );
         
         // Plot 2: Velocity
@@ -517,7 +517,7 @@ class TrajectoryRenderer {
             xScale,
             y3dScale,
             'Geschwindigkeit [m/s]',
-            '#27ae60'
+            '#555'
         );
         
         // X-axis label
@@ -533,7 +533,7 @@ class TrajectoryRenderer {
         ctx.fillRect(x, y, w, h);
         
         // Grid
-        ctx.strokeStyle = '#dee2e6';
+        ctx.strokeStyle = '#d0d0d0';
         ctx.lineWidth = 1;
         for (let i = 0; i <= 5; i++) {
             const yPos = y + i * h / 5;
@@ -581,7 +581,7 @@ class TrajectoryRenderer {
             // Current point
             const px = x + tData[currentIdx] * xScale;
             const py = zeroY - yData[currentIdx] * yScale;
-            ctx.fillStyle = '#e74c3c';
+            ctx.fillStyle = '#34495e';
             ctx.beginPath();
             ctx.arc(px, py, 5, 0, 2 * Math.PI);
             ctx.fill();
@@ -589,7 +589,7 @@ class TrajectoryRenderer {
         
         // Current time marker
         const markerX = x + currentTime * xScale;
-        ctx.strokeStyle = '#e74c3c';
+        ctx.strokeStyle = '#34495e';
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 5]);
         ctx.beginPath();
