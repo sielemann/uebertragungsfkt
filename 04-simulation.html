@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feder-Masse Schwinger nach Lunze 1 Beispiel 4.2/6.1</title>
     <link rel="stylesheet" href="04-simulation.css">
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="katex/katex.min.css">
+    <script defer src="katex/katex.min.js"></script>
 </head>
 <body>
     <div id="main-container">
@@ -93,22 +96,29 @@
                     <div class="collapsible-content">
                     <div class="equations">
                         <h3>Zustandsraumdarstellung</h3>
-                        <p><strong>Zustandsvektor:</strong></p>
-                        <div class="equation">
-                            <strong>x</strong> = [x₃, ẋ₃]ᵀ = [Position, Geschwindigkeit]ᵀ
+                        
+                        <!-- Row 1: State vector and Input -->
+                        <div class="equation-grid">
+                            <div class="equation-item">
+                                <p><strong>Zustandsvektor:</strong></p>
+                                <div id="state-vector-eq" class="equation-katex"></div>
+                            </div>
+                            <div class="equation-item">
+                                <p><strong>Eingang:</strong></p>
+                                <div id="input-eq" class="equation-katex"></div>
+                            </div>
                         </div>
                         
-                        <p><strong>Differentialgleichungen:</strong></p>
-                        <div class="equation">
-                            dx₃/dt = ẋ₃
-                        </div>
-                        <div class="equation">
-                            dẋ₃/dt = (c/m)·u - (c/d)·ẋ₃ - (c/m)·x₃
-                        </div>
-                        
-                        <p><strong>Eingang:</strong></p>
-                        <div class="equation">
-                            u(t) = A·sin(2πf·t)
+                        <!-- Row 2: System matrix and Differential equation -->
+                        <div class="equation-grid">
+                            <div class="equation-item">
+                                <p><strong>Zustandsraummodell:</strong></p>
+                                <div id="system-matrix-eq" class="equation-katex"></div>
+                            </div>
+                            <div class="equation-item">
+                                <p><strong>Differentialgleichung:</strong></p>
+                                <div id="diff-eq-scalar" class="equation-katex"></div>
+                            </div>
                         </div>
                     </div>
                     </div>

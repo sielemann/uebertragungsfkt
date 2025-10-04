@@ -646,8 +646,63 @@ function updatePlayPauseButtons() {
     }
 }
 
+function renderEquations() {
+    // Check if KaTeX is loaded
+    if (typeof katex === 'undefined') {
+        console.warn('KaTeX not loaded yet');
+        return;
+    }
+    
+    const m = state.m;
+    const c = state.c;
+    const d = state.d;
+    const A = state.A;
+    const f = state.f;
+    
+    try {
+        // State vector
+        katex.render(
+            String.raw`\mathbf{x} = \begin{bmatrix} x_3 \\ \dot{x}_3 \end{bmatrix} = \begin{bmatrix} \text{Position} \\ \text{Geschwindigkeit} \end{bmatrix}`,
+            document.getElementById('state-vector-eq'),
+            { displayMode: true, throwOnError: false }
+        );
+        
+        // System matrix (with actual numeric values)
+        const a21 = -(c/m);
+        const a22 = -(c/d);
+        const b2 = (c/m);
+        
+        katex.render(
+            String.raw`\dot{\mathbf{x}} = \begin{bmatrix} 0 & 1 \\ ${a21.toFixed(3)} & ${a22.toFixed(3)} \end{bmatrix} \mathbf{x} + \begin{bmatrix} 0 \\ ${b2.toFixed(3)} \end{bmatrix} u`,
+            document.getElementById('system-matrix-eq'),
+            { displayMode: true, throwOnError: false }
+        );
+        
+        // Differential equation (scalar form with numeric coefficients)
+        const sign22 = a22 >= 0 ? '+' : '';
+        const sign21 = a21 >= 0 ? '+' : '';
+        
+        katex.render(
+            String.raw`\ddot{x}_3 = \frac{c}{m} u - \frac{c}{d} \dot{x}_3 - \frac{c}{m} x_3 = ${b2.toFixed(2)} \cdot u ${sign22} ${a22.toFixed(2)} \dot{x}_3 ${sign21} ${a21.toFixed(2)} x_3`,
+            document.getElementById('diff-eq-scalar'),
+            { displayMode: true, throwOnError: false }
+        );
+        
+        // Input function
+        katex.render(
+            String.raw`u(t) = A \sin(2\pi f t) = ${A.toFixed(2)} \sin(2\pi \cdot ${f.toFixed(2)} \cdot t) \text{ m}`,
+            document.getElementById('input-eq'),
+            { displayMode: true, throwOnError: false }
+        );
+        
+    } catch (error) {
+        console.error('Error rendering equations:', error);
+    }
+}
+
 function resimulate() {
     system.simulateTrajectory(state.maxTime);
+    renderEquations();  // Update equations with new parameter values
     render();
 }
 
