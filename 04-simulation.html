@@ -85,8 +85,12 @@
 
             <!-- Right Panel: Visualizations -->
             <main id="visualization-panel">
-                <section class="panel-section">
-                    <h2>Systemgleichungen</h2>
+                <section class="canvas-section collapsible">
+                    <h2 class="collapsible-header">
+                        <span class="collapse-icon">▼</span>
+                        Systemgleichungen
+                    </h2>
+                    <div class="collapsible-content">
                     <div class="equations">
                         <h3>Zustandsraumdarstellung</h3>
                         <p><strong>Zustandsvektor:</strong></p>
@@ -107,20 +111,31 @@
                             u(t) = A·sin(2πf·t)
                         </div>
                     </div>
-                </section>
-
-
-                <section class="canvas-section">
-                    <h2>Schematische Darstellung</h2>
-                    <div class="canvas-wrapper">
-                        <canvas id="schematic-canvas"></canvas>
                     </div>
                 </section>
 
-                <section class="canvas-section">
-                    <h2>Trajektorien</h2>
+
+                <section class="canvas-section collapsible">
+                    <h2 class="collapsible-header">
+                        <span class="collapse-icon">▼</span>
+                        Schematische Darstellung
+                    </h2>
+                    <div class="collapsible-content">
+                    <div class="canvas-wrapper">
+                        <canvas id="schematic-canvas"></canvas>
+                    </div>
+                    </div>
+                </section>
+
+                <section class="canvas-section collapsible">
+                    <h2 class="collapsible-header">
+                        <span class="collapse-icon">▼</span>
+                        Trajektorien
+                    </h2>
+                    <div class="collapsible-content">
                     <div class="canvas-wrapper">
                         <canvas id="trajectory-canvas"></canvas>
+                    </div>
                     </div>
                 </section>
             </main>

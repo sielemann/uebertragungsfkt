@@ -259,3 +259,44 @@ input[type="checkbox"] {
     font-size: 1.5em;
     color: #3498db;
 }
+
+/* Collapsible sections */
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+    padding: 10px;
+    margin: -10px;
+    border-radius: 6px;
+}
+
+.collapsible-header:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.collapse-icon {
+    display: inline-block;
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+    color: #3498db;
+}
+
+.collapsible.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    max-height: 2000px;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, opacity 0.3s ease;
+    opacity: 1;
+}
+
+.collapsible.collapsed .collapsible-content {
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease-in, opacity 0.2s ease;
+}

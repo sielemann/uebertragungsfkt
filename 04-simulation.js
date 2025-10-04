@@ -179,12 +179,12 @@ class SchematicRenderer {
         const rect = this.canvas.getBoundingClientRect();
         
         this.canvas.width = rect.width * dpr;
-        this.canvas.height = rect.height * dpr;
+        this.canvas.height = 0.5*rect.height * dpr;
         
         this.ctx.scale(dpr, dpr);
         
         this.width = rect.width;
-        this.height = rect.height;
+        this.height = 0.5*rect.height;
     }
     
     render(t) {
@@ -200,10 +200,10 @@ class SchematicRenderer {
         // Get visualization positions (all in absolute coordinates)
         const pos = system.getVisualizationPositions(t);
         
-        // Scale: 1m = 80px, invert Y (screen coords go down, physics coords go up)
+        // Scale: 1m = 200px, invert Y (screen coords go down, physics coords go up)
         const scale = 200;
         const centerX = w / 2;
-        const baseY = h * 0.2;  // Reference point on screen
+        const baseY = h / 2;  // Reference point (vertically centered in canvas)
         
         // Convert physics positions to screen coordinates
         const groundScreenY = baseY - pos.ground * scale;      // Fixed ground
@@ -651,6 +651,31 @@ function resimulate() {
     render();
 }
 
+function setupCollapsibleSections() {
+    // Add click listeners to all collapsible headers
+    const collapsibleSections = document.querySelectorAll('.collapsible');
+    
+    collapsibleSections.forEach(section => {
+        const header = section.querySelector('.collapsible-header');
+        
+        header.addEventListener('click', () => {
+            section.classList.toggle('collapsed');
+            
+            // Save state to localStorage
+            const sectionId = section.querySelector('h2').textContent.trim();
+            const isCollapsed = section.classList.contains('collapsed');
+            localStorage.setItem(`section-${sectionId}`, isCollapsed ? 'collapsed' : 'expanded');
+        });
+        
+        // Restore state from localStorage
+        const sectionId = section.querySelector('h2').textContent.trim();
+        const savedState = localStorage.getItem(`section-${sectionId}`);
+        if (savedState === 'collapsed') {
+            section.classList.add('collapsed');
+        }
+    });
+}
+
 function setupEventListeners() {
     // Parameter sliders
     document.getElementById('mass-slider').addEventListener('input', (e) => {
@@ -736,6 +761,7 @@ function setupEventListeners() {
 
 document.addEventListener('DOMContentLoaded', () => {
     initRenderers();
+    setupCollapsibleSections();
     setupEventListeners();
     resimulate();
     updatePlayPauseButtons();
