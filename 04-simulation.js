@@ -17,6 +17,7 @@ const state = {
     // Simulation state
     time: 0,
     isPlaying: false,
+    offset: 0,   // Horizontal offset for visualization [px]
     
     // Simulation data (will store full trajectory)
     trajectory: [],
@@ -219,26 +220,55 @@ class SchematicRenderer {
         
         const massSize = 0.15 * scale;  // Mass size in pixels
         
-        // Draw fixed ground (reference)
+        // Calculate horizontal offsets based on slider
+        const offset = state.offset;
+        const offsetX1 = 0.5 * offset;   // x1 label
+        const offsetSpring = 1.0 * offset;   // Spring
+        const offsetX2 = 1.5 * offset;   // x2 label
+        const offsetDamper = 2.0 * offset;   // Damper
+        const offsetX3Label = 2.5 * offset;   // x3 label
+        const offsetMass = 3.0 * offset;   // Mass
+        
+        // Draw fixed ground (reference) - no offset
         this.drawGround(centerX, groundScreenY);
         
-        // Draw rigid support from ground to moving attachment
-        this.drawRigidSupport(centerX, groundScreenY, x1ScreenY);
+        // Draw horizontal reference lines (behind everything)
+        // x1: from rigid support to spring tip
+        this.drawHorizontalReferenceLine(centerX, centerX + offsetSpring, x1ScreenY);
+        // x2: from spring tip to damper tip
+        this.drawHorizontalReferenceLine(centerX + offsetSpring, centerX + offsetDamper, x2ScreenY);
+        // x3: from damper tip to mass
+        this.drawHorizontalReferenceLine(centerX + offsetDamper, centerX + offsetMass, x3ScreenY);
+        
+        // Draw rigid support from ground to moving attachment - no offset for dashed line
+        this.drawRigidSupport(centerX, groundScreenY, x1ScreenY, offsetX1);
         
         // Draw spring from moving attachment (x1) to junction (x2)
-        this.drawSpring(centerX, x1ScreenY, x2ScreenY);
+        this.drawSpring(centerX + offsetSpring, x1ScreenY, x2ScreenY);
         
         // Draw damper from junction (x2) to mass (x3)
-        this.drawDamper(centerX, x2ScreenY, x3ScreenY);
+        this.drawDamper(centerX + offsetDamper, x2ScreenY, x3ScreenY);
         
         // Draw mass at x3
-        this.drawMass(centerX, x3ScreenY, massSize);
+        this.drawMass(centerX + offsetMass, x3ScreenY, massSize, false);  // Don't draw label on mass
         
         // Draw x2 junction marker
-        this.drawPositionMarker(centerX, x2ScreenY, 'x₂');
+        this.drawPositionMarker(centerX + offsetX2, x2ScreenY, 'x₂');
         
-        // Draw labels
-        this.drawLabels(centerX, x1ScreenY, x2ScreenY, x3ScreenY);
+        // Draw x3 label (separate from mass to allow different offset)
+        this.drawPositionMarker(centerX + offsetX3Label, x3ScreenY, 'x₃', '#f39c12');
+    }
+    
+    drawHorizontalReferenceLine(x1, x2, y) {
+        const ctx = this.ctx;
+        
+        // Draw thin black horizontal line
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x1, y);
+        ctx.lineTo(x2, y);
+        ctx.stroke();
     }
     
     drawGround(x, y) {
@@ -248,24 +278,24 @@ class SchematicRenderer {
         
         // Ground rectangle
         ctx.fillStyle = '#7f8c8d';
-        ctx.fillRect(x - groundWidth/2, y, groundWidth, groundHeight);
+        ctx.fillRect(x - groundWidth/2 - 0.6*groundWidth, y - groundHeight/2, groundWidth, groundHeight);
         
         // Ground hatching
         ctx.strokeStyle = '#2c3e50';
         ctx.lineWidth = 2;
-        for (let i = -5; i <= 5; i++) {
-            const hx = x + i * 20;
+        for (let i = -5; i < 5; i++) {
+            const hx = x + i * 20 - 0.6*groundWidth;
             ctx.beginPath();
-            ctx.moveTo(hx, y);
-            ctx.lineTo(hx + 10, y + groundHeight);
+            ctx.moveTo(hx, y - groundHeight/2);
+            ctx.lineTo(hx + 10, y + groundHeight/2);
             ctx.stroke();
         }
     }
     
-    drawRigidSupport(x, y1, y2) {
+    drawRigidSupport(x, y1, y2, labelOffsetX = 0) {
         const ctx = this.ctx;
         
-        // Draw rigid line from ground to moving attachment
+        // Draw rigid line from ground to moving attachment - stays at centerX
         ctx.strokeStyle = '#7f8c8d';
         ctx.lineWidth = 3;
         ctx.setLineDash([8, 4]);  // Dashed line
@@ -275,13 +305,14 @@ class SchematicRenderer {
         ctx.stroke();
         ctx.setLineDash([]);  // Reset to solid
         
-        // Draw larger circle at the moving attachment point (x1)
+        // Draw larger circle at the moving attachment point (x1) - with offset
         const circleRadius = 12;
+        const circleX = x + labelOffsetX;
         ctx.fillStyle = '#3498db';  // Blue to match spring
         ctx.strokeStyle = '#2c3e50';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(x, y2, circleRadius, 0, 2 * Math.PI);
+        ctx.arc(circleX, y2, circleRadius, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
         
@@ -290,7 +321,7 @@ class SchematicRenderer {
         ctx.font = 'bold 14px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('x₁', x, y2);
+        ctx.fillText('x₁', circleX, y2);
     }
     
     drawSpring(x, yTop, yBottom) {
@@ -338,7 +369,7 @@ class SchematicRenderer {
         ctx.stroke();
     }
     
-    drawMass(x, y, size) {
+    drawMass(x, y, size, showLabel = true) {
         const ctx = this.ctx;
         
         ctx.fillStyle = '#f39c12';
@@ -348,20 +379,22 @@ class SchematicRenderer {
         ctx.fillRect(x - size/2, y - size/2, size, size);
         ctx.strokeRect(x - size/2, y - size/2, size, size);
         
-        // Label
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 16px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('x₃', x, y);
+        // Label (optional)
+        if (showLabel) {
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('x₃', x, y);
+        }
     }
     
-    drawPositionMarker(x, y, label) {
+    drawPositionMarker(x, y, label, color = '#e74c3c') {
         const ctx = this.ctx;
         const radius = 10;
         
         // Draw circle
-        ctx.fillStyle = '#e74c3c';  // Red to match damper
+        ctx.fillStyle = color;
         ctx.strokeStyle = '#2c3e50';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -772,6 +805,13 @@ function setupEventListeners() {
     document.getElementById('time-slider').addEventListener('input', (e) => {
         state.time = parseFloat(e.target.value);
         document.getElementById('time-value').textContent = state.time.toFixed(2);
+        render();
+    });
+    
+    // Offset slider
+    document.getElementById('offset-slider').addEventListener('input', (e) => {
+        state.offset = parseFloat(e.target.value);
+        document.getElementById('offset-value').textContent = state.offset.toFixed(0);
         render();
     });
     
