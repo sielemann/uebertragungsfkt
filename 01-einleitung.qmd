@@ -159,8 +159,9 @@ Fragen
 
 ::: notes
 Öffne die Simulation in einem neuen Tab. Danach mit Alt+Tab zurück zur Präsentation!
- - Linearisiertes Beispielmodell, Übergangsverhalten, stationäres Verhalten, sinusförmige Eingangssignale, Fourieranalyse und Superposition
- - Hinarbeiten auf Beobachtungen: Kann mit einfachen Signalen und Superpositionsprinzip viele Eingänge darstellen und Ausgänge berechnen. Beim Ändern von Eingangsfrequenz ändern sich Frequenz und Verstärkung von Ausgängen.
+ - Linearisiertes Beispielmodell, Übergangsverhalten, stationäres Verhalten mit sinusförmigen Eingangssignalen
+ - Beim Ändern von Eingangsfrequenz ändern sich Frequenz und Verstärkung von Ausgängen (Verschieben der Parameter: Masse ändert v.a. Amplitude, Federkonstante Amplitude und Phase, Dämpfung vor allem Phase. Verschiebung der Eingangsparameter: Amplitude ändert Amplitude, Frequenz kann beides ändern wenn man an rechten Rand sieht aber nichts besonders eindeutiges).
+ - Fehlt/nur erwähnen: Fourieranalyse und Superposition (Kann mit einfachen Signalen und Superpositionsprinzip viele Eingänge darstellen und Ausgänge berechnen). 
 :::
 
 

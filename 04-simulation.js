@@ -23,6 +23,13 @@ const state = {
     trajectory: [],
     maxTime: 10.0,
     dt: 0.02,   // Integration time step
+    
+    // Trajectory display flags
+    isShowingInput: false,
+    isShowingAnalyticTotal: true,
+    isShowingAnalyticTransient: false,
+    isShowingAnalyticSteady: false,
+    isShowingNumerical: false,
 };
 
 // ============================================================================
@@ -548,12 +555,12 @@ class TrajectoryRenderer {
         const rect = this.canvas.getBoundingClientRect();
         
         this.canvas.width = rect.width * dpr;
-        this.canvas.height = rect.height * dpr;
+        this.canvas.height = 0.6*rect.height * dpr;
         
         this.ctx.scale(dpr, dpr);
         
         this.width = rect.width;
-        this.height = rect.height;
+        this.height = 0.6*rect.height;
     }
     
     render(currentTime) {
@@ -571,7 +578,7 @@ class TrajectoryRenderer {
         // Margins and dimensions
         const margin = { top: 40, right: 40, bottom: 50, left: 60 };
         const plotWidth = w - margin.left - margin.right;
-        const plotHeight = (h - margin.top - margin.bottom - 30) / 2;
+        const plotHeight = (h - margin.top - margin.bottom - 0*30) / 1;
         
         // Find data range
         const tMax = Math.max(...system.history.t);
@@ -595,6 +602,24 @@ class TrajectoryRenderer {
         const y3Scale = plotHeight / (positionMax * 1.2 + 0.1);
         const y3dScale = plotHeight / (x3dMax * 1.2 + 0.1);
         
+        // Build curves array based on display flags
+        const curves = [];
+        if (state.isShowingInput) {
+            curves.push({ data: system.history.u, color: '#777777', label: 'Eingang', lineWidth: 1.0 });
+        }
+        if (state.isShowingAnalyticTotal) {
+            curves.push({ data: y_total, color: '#27ae60', label: 'Analytisch', lineWidth: 2.0 });
+        }
+        if (state.isShowingAnalyticTransient) {
+            curves.push({ data: system.history.y_transient, color: '#e74c3c', label: 'Übergang', lineWidth: 1 });
+        }
+        if (state.isShowingAnalyticSteady) {
+            curves.push({ data: system.history.y_steady, color: '#3498db', label: 'Stationär', lineWidth: 1 });
+        }
+        if (state.isShowingNumerical) {
+            curves.push({ data: system.history.x3, color: '#2c3e50', label: 'Numerisch', lineWidth: 2.0, lineDash: [5, 5] });
+        }
+        
         // Plot 1: Position with multiple curves
         this.plotMultipleTrajectories(
             ctx,
@@ -603,25 +628,45 @@ class TrajectoryRenderer {
             plotWidth,
             plotHeight,
             system.history.t,
-            [
-                { data: y_total, color: '#27ae60', label: 'Analytisch', lineWidth: 2.0 },
-                { data: system.history.y_transient, color: '#e74c3c', label: 'Übergang', lineWidth: 1 },
-                { data: system.history.y_steady, color: '#3498db', label: 'Stationär', lineWidth: 1 },
-                { data: system.history.x3, color: '#2c3e50', label: 'Numerisch', lineWidth: 2.0, lineDash: [5, 5] }
-            ],
+            curves,
             currentTime,
             xScale,
             y3Scale,
-            'Ausgang: Position [m]'
+            ''
         );
         
 
         
-        // X-axis label
+        // Axis labels
         ctx.fillStyle = '#2c3e50';
         ctx.font = '14px sans-serif';
+        
+        // X-axis label
         ctx.textAlign = 'center';
         ctx.fillText('Zeit [s]', w / 2, h - 10);
+        
+        // Y-axis label (rotated)
+        ctx.save();
+        ctx.translate(15, h / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center';
+        ctx.fillText('Position [m]', 0, 0);
+        ctx.restore();
+        
+        // Numeric tick labels
+        ctx.font = '12px sans-serif';
+        
+        // X-axis ticks
+        ctx.textAlign = 'left';
+        ctx.fillText('0', margin.left + 2, h - margin.bottom + 20);
+        ctx.textAlign = 'right';
+        ctx.fillText(tMax.toFixed(1), margin.left + plotWidth - 2, h - margin.bottom + 20);
+        
+        // Y-axis ticks
+        ctx.textAlign = 'right';
+        ctx.fillText('0', margin.left - 5, margin.top + plotHeight / 2 + 4);
+        ctx.fillText(positionMax.toFixed(2), margin.left - 5, margin.top + 4);
+        //ctx.fillText((-positionMax).toFixed(2), margin.left - 5, margin.top + plotHeight - 4);
     }
     
     
@@ -927,6 +972,32 @@ function setupEventListeners() {
     document.getElementById('offset-slider').addEventListener('input', (e) => {
         state.offset = parseFloat(e.target.value);
         document.getElementById('offset-value').textContent = state.offset.toFixed(0);
+        render();
+    });
+    
+    // Trajectory display checkboxes
+    document.getElementById('show-input').addEventListener('change', (e) => {
+        state.isShowingInput = e.target.checked;
+        render();
+    });
+    
+    document.getElementById('show-analytic-total').addEventListener('change', (e) => {
+        state.isShowingAnalyticTotal = e.target.checked;
+        render();
+    });
+    
+    document.getElementById('show-analytic-transient').addEventListener('change', (e) => {
+        state.isShowingAnalyticTransient = e.target.checked;
+        render();
+    });
+    
+    document.getElementById('show-analytic-steady').addEventListener('change', (e) => {
+        state.isShowingAnalyticSteady = e.target.checked;
+        render();
+    });
+    
+    document.getElementById('show-numerical').addEventListener('change', (e) => {
+        state.isShowingNumerical = e.target.checked;
         render();
     });
     

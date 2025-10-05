@@ -11,7 +11,7 @@
     <script defer src="katex/contrib/auto-render.min.js"></script>
     
     <!-- math.js for matrix operations and complex numbers -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
+    <script src="mathjs/math.min.js"></script>
 </head>
 <body>
     <div id="main-container">
@@ -85,6 +85,15 @@
                         </label>
                         <input type="range" id="offset-slider" min="0" max="100" step="5" value="0">
                     </div>
+                    
+                    <div class="checkbox-group">
+                        <p style="font-weight: 600; margin-bottom: 8px;">Trajektorien anzeigen:</p>
+                        <label><input type="checkbox" id="show-input" unchecked> Eingang</label>
+                        <label><input type="checkbox" id="show-analytic-total" checked> Ausgang analytisch</label>
+                        <label><input type="checkbox" id="show-analytic-transient" unchecked> Übergangsanteil des Ausgangs</label>
+                        <label><input type="checkbox" id="show-analytic-steady" unchecked> Stationärer Anteil des Ausgangs</label>
+                        <label><input type="checkbox" id="show-numerical" unchecked> Ausgang numerisch</label>
+                    </div>
 
                 </section>
 
@@ -141,9 +150,7 @@
                         Schematische Darstellung
                     </h2>
                     <div class="collapsible-content">
-                    <div class="canvas-wrapper">
                         <canvas id="schematic-canvas"></canvas>
-                    </div>
                     </div>
                 </section>
 
@@ -153,9 +160,7 @@
                         Trajektorien
                     </h2>
                     <div class="collapsible-content">
-                    <div class="canvas-wrapper">
                         <canvas id="trajectory-canvas"></canvas>
-                    </div>
                     </div>
                 </section>
             </main>
