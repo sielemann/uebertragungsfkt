@@ -30,6 +30,9 @@ const state = {
     isShowingAnalyticTransient: false,
     isShowingAnalyticSteady: false,
     isShowingNumerical: false,
+    
+    // State-space matrices (computed from parameters)
+    matrices: null,  // Will store {A, B, C, D}
 };
 
 // ============================================================================
@@ -132,8 +135,8 @@ class SpringDamperMassSystem {
         this.history.x3d.push(this.x[1]);
         this.history.u.push(this.groundPosition(0));
         
-        // Get state-space matrices for analytic solution
-        const {A, B, C, D} = this.getStateSpaceMatrices();
+        // Get state-space matrices from state (computed in resimulate())
+        const {A, B, C, D} = state.matrices;
 
         // Store initial state for transient response calculation
         const x0 = math.matrix([[this.x[0]], [this.x[1]]]);
@@ -851,11 +854,26 @@ function renderEquations() {
         return;
     }
     
-    const m = state.m;
-    const c = state.c;
-    const d = state.d;
-    const A = state.A;
+    // Check if matrices are computed
+    if (!state.matrices) {
+        console.warn('Matrices not computed yet');
+        return;
+    }
+    
+    const A_input = state.A;
     const f = state.f;
+    
+    // Extract matrix values from math.js matrices
+    const A_mat = state.matrices.A;
+    const B_mat = state.matrices.B;
+    
+    const a11 = math.subset(A_mat, math.index(0, 0));
+    const a12 = math.subset(A_mat, math.index(0, 1));
+    const a21 = math.subset(A_mat, math.index(1, 0));
+    const a22 = math.subset(A_mat, math.index(1, 1));
+    
+    const b1 = math.subset(B_mat, math.index(0, 0));
+    const b2 = math.subset(B_mat, math.index(1, 0));
     
     try {
         // State vector
@@ -865,13 +883,9 @@ function renderEquations() {
             { displayMode: true, throwOnError: false }
         );
         
-        // System matrix (with actual numeric values)
-        const a21 = -(c/m);
-        const a22 = -(c/d);
-        const b2 = (c/m);
-        
+        // System matrix (with actual numeric values from state.matrices)
         katex.render(
-            String.raw`\dot{\mathbf{x}} = \begin{bmatrix} 0 & 1 \\ ${a21.toFixed(3)} & ${a22.toFixed(3)} \end{bmatrix} \mathbf{x} + \begin{bmatrix} 0 \\ ${b2.toFixed(3)} \end{bmatrix} u`,
+            String.raw`\dot{\mathbf{x}} = \begin{bmatrix} 0 & 1 \\ -\frac{c}{m} & -\frac{c}{d}  \end{bmatrix} \mathbf{x} + \begin{bmatrix} 0 \\ \frac{c}{m} \end{bmatrix} u = \begin{bmatrix} ${a11.toFixed(3)} & ${a12.toFixed(3)} \\ ${a21.toFixed(3)} & ${a22.toFixed(3)} \end{bmatrix} \mathbf{x} + \begin{bmatrix} ${b1.toFixed(3)} \\ ${b2.toFixed(3)} \end{bmatrix} u`,
             document.getElementById('system-matrix-eq'),
             { displayMode: true, throwOnError: false }
         );
@@ -888,7 +902,7 @@ function renderEquations() {
         
         // Input function
         katex.render(
-            String.raw`u(t) = A \sin(2\pi f t) = ${A.toFixed(2)} \sin(2\pi \cdot ${f.toFixed(2)} \cdot t) \text{ m}`,
+            String.raw`u(t) = A \sin(2\pi f t) = ${A_input.toFixed(2)} \sin(2\pi \cdot ${f.toFixed(2)} \cdot t)`,
             document.getElementById('input-eq'),
             { displayMode: true, throwOnError: false }
         );
@@ -899,6 +913,9 @@ function renderEquations() {
 }
 
 function resimulate() {
+    // Update state-space matrices from current parameters
+    state.matrices = system.getStateSpaceMatrices();
+    
     system.simulateTrajectory(state.maxTime);
     renderEquations();  // Update equations with new parameter values
     render();
