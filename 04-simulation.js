@@ -33,6 +33,9 @@ const state = {
     
     // State-space matrices (computed from parameters)
     matrices: null,  // Will store {A, B, C, D}
+    
+    // Complex frequency parameters for analytic solution
+    s_values: null,  // Will store array of {s, weight} for exponential basis functions
 };
 
 // ============================================================================
@@ -141,14 +144,8 @@ class SpringDamperMassSystem {
         // Store initial state for transient response calculation
         const x0 = math.matrix([[this.x[0]], [this.x[1]]]);
         
-        // Define complex frequency pairs for sinusoidal input u(t) = A*sin(2πft)
-        // Using Euler's formula: sin(ωt) = (1/2j)[e^(jωt) - e^(-jωt)] (real weight 1/2 would result in cosine, thus keeping the implementation flexible with complex weights)
-        // We need conjugate pairs s = ±jω to get real-valued output
-        const omega = 2 * Math.PI * state.f;
-        const s_values = [
-            { s: math.complex(0, omega),   weight: math.complex(0, -0.5) },  // s = +jω, weight = -j/2
-            { s: math.complex(0, -omega),  weight: math.complex(0, 0.5) }    // s = -jω, weight = +j/2
-        ];
+        // Get complex frequency parameters from state (computed in resimulate())
+        const s_values = state.s_values;
         
         // Precompute transfer functions and matrices for each s value
         const I = math.identity(2);
@@ -206,10 +203,9 @@ class SpringDamperMassSystem {
                 y_steady_total = math.add(y_steady_total, y_steady_weighted);
             }
             
-            // Multiply by input amplitude A and extract real part
-            const input_amplitude = state.A;
-            const y_transient_real = math.re(math.multiply(input_amplitude, y_transient_total));
-            const y_steady_real = math.re(math.multiply(input_amplitude, y_steady_total));
+            // Extract real part (amplitude A already included in weights)
+            const y_transient_real = math.re(y_transient_total);
+            const y_steady_real = math.re(y_steady_total);
             
             this.history.y_transient.push(y_transient_real);
             this.history.y_steady.push(y_steady_real);
@@ -596,14 +592,16 @@ class TrajectoryRenderer {
         const yTransMax = Math.max(...system.history.y_transient.map(Math.abs));
         const ySteadyMax = Math.max(...system.history.y_steady.map(Math.abs));
         const yTotalMax = Math.max(...y_total.map(Math.abs));
-        const positionMax = Math.max(x3Max, yTransMax, ySteadyMax, yTotalMax);
+        const uMax = Math.max(...system.history.u.map(Math.abs));
+        const positionMax = Math.max(x3Max, yTransMax, ySteadyMax, yTotalMax, uMax);
         
         const x3dMax = Math.max(...system.history.x3d.map(Math.abs));
         
         // Scales
+        // Y-scale: add 20% padding to max value, split between positive and negative
         const xScale = plotWidth / tMax;
-        const y3Scale = plotHeight / (positionMax * 1.2 + 0.1);
-        const y3dScale = plotHeight / (x3dMax * 1.2 + 0.1);
+        const y3Scale = (plotHeight / 2) / (positionMax * 1.2 + 0.1);
+        const y3dScale = (plotHeight / 2) / (x3dMax * 1.2 + 0.1);
         
         // Build curves array based on display flags
         const curves = [];
@@ -666,10 +664,12 @@ class TrajectoryRenderer {
         ctx.fillText(tMax.toFixed(1), margin.left + plotWidth - 2, h - margin.bottom + 20);
         
         // Y-axis ticks
+        // The actual displayable range matches the scale with 20% padding
+        const displayMax = positionMax * 1.2 + 0.1;
         ctx.textAlign = 'right';
         ctx.fillText('0', margin.left - 5, margin.top + plotHeight / 2 + 4);
-        ctx.fillText(positionMax.toFixed(2), margin.left - 5, margin.top + 4);
-        //ctx.fillText((-positionMax).toFixed(2), margin.left - 5, margin.top + plotHeight - 4);
+        ctx.fillText(displayMax.toFixed(2), margin.left - 5, margin.top + 4);
+        ctx.fillText((-displayMax).toFixed(2), margin.left - 5, margin.top + plotHeight - 4);
     }
     
     
@@ -797,6 +797,9 @@ function animate(timestamp) {
         document.getElementById('time-slider').value = state.time;
         document.getElementById('time-value').textContent = state.time.toFixed(2);
         
+        // Update time-dependent equations
+        renderEquationsTimeDependent();
+        
         // Stop at end
         if (state.time >= state.maxTime) {
             state.isPlaying = false;
@@ -847,7 +850,21 @@ function updatePlayPauseButtons() {
     }
 }
 
-function renderEquations() {
+// Helper function to format complex numbers for display
+function formatComplex(c) {
+    const re = c.re;
+    const im = c.im;
+    if (Math.abs(re) < 1e-10 && Math.abs(im) < 1e-10) return '0';
+    if (Math.abs(re) < 1e-10) {
+        return im >= 0 ? `${im.toFixed(2)}j` : `${im.toFixed(2)}j`;
+    }
+    if (Math.abs(im) < 1e-10) return `${re.toFixed(2)}`;
+    const sign = im >= 0 ? '+' : '';
+    return `${re.toFixed(2)}${sign}${im.toFixed(2)}j`;
+}
+
+// Render parameter-dependent equations (called when parameters change)
+function renderEquationsStatic() {
     // Check if KaTeX is loaded
     if (typeof katex === 'undefined') {
         console.warn('KaTeX not loaded yet');
@@ -907,14 +924,95 @@ function renderEquations() {
             { displayMode: true, throwOnError: false }
         );
         
+        // Complex parameters for transfer function (if s_values exists)
+        if (state.s_values) {
+            // Build list of s values
+            const s_list = state.s_values.map(({s}, idx) => {
+                const s_str = formatComplex(s);
+                const superscript = (idx + 1) === 1 ? '' : '^\\star';
+                return `s${superscript} = ${s_str}`;
+            }).join(', \\; ');
+
+            // Build list of w values 
+            const w_list = state.s_values.map(({weight}, idx) => {
+                const w_str = formatComplex(weight);
+                const superscript = (idx + 1) === 1 ? '' : '^\\star';
+                return `w${superscript} = ${w_str}`;
+            }).join(', \\; ');            
+            
+            katex.render(
+                String.raw`${s_list} \quad \quad ${w_list}`,
+                document.getElementById('complex-parameters-eq'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            // Render input in terms of complex exponentials
+            const omega = 2 * Math.PI * state.f;
+            katex.render(
+                String.raw`u(t) = w \cdot e^{st} + w^\star \cdot e^{s^\star t} = A \sin(\omega t) \quad \text{mit} \quad \omega = 2\pi f = ${omega.toFixed(2)}`,
+                document.getElementById('complex-input-eq'),
+                { displayMode: true, throwOnError: false }
+            );
+        }
+        
     } catch (error) {
-        console.error('Error rendering equations:', error);
+        console.error('Error rendering static equations:', error);
     }
+}
+
+// Render time-dependent equations (called when time changes)
+function renderEquationsTimeDependent() {
+    // Check if KaTeX is loaded
+    if (typeof katex === 'undefined') {
+        return;
+    }
+    
+    // Check if s_values are computed
+    if (!state.s_values) {
+        return;
+    }
+    
+    try {
+        // Compute complex exponential terms at current time
+        const t = state.time;
+        const term1 = math.multiply(state.s_values[0].weight, math.exp(math.multiply(state.s_values[0].s, t)));
+        const term2 = math.multiply(state.s_values[1].weight, math.exp(math.multiply(state.s_values[1].s, t)));
+        const sum = math.add(term1, term2);
+        
+        const term1_str = formatComplex(term1);
+        const term2_str = formatComplex(term2);
+        const sum_str = sum.re.toFixed(4);  // Should be real-valued
+        
+        katex.render(
+            String.raw`u(t) = w \cdot e^{st} + w^\star \cdot e^{s^\star t} = (${term1_str}) + (${term2_str}) = ${sum_str} \quad \text{bei} \quad t = ${state.time.toFixed(2)}`,
+            document.getElementById('complex-input-now-eq'),
+            { displayMode: true, throwOnError: false }
+        );
+        
+    } catch (error) {
+        console.error('Error rendering time-dependent equations:', error);
+    }
+}
+
+// Render all equations (static and time-dependent)
+function renderEquations() {
+    renderEquationsStatic();
+    renderEquationsTimeDependent();
 }
 
 function resimulate() {
     // Update state-space matrices from current parameters
     state.matrices = system.getStateSpaceMatrices();
+    
+    // Compute complex frequency parameters for sinusoidal input u(t) = A*sin(2πft)
+    // Using Euler's formula: sin(ωt) = (1/2j)[e^(jωt) - e^(-jωt)]
+    // Therefore: A*sin(ωt) = A*(-j/2)*e^(jωt) + A*(j/2)*e^(-jωt)
+    const omega = 2 * Math.PI * state.f;
+    const A = state.A;
+    state.s_values = [
+        { s: math.complex(0, omega),   weight: math.complex(0, -0.5 * A) },  // s = +jω, weight = -jA/2
+        { s: math.complex(0, -omega),  weight: math.complex(0, 0.5 * A) }    // s = -jω, weight = +jA/2
+    ];
     
     system.simulateTrajectory(state.maxTime);
     renderEquations();  // Update equations with new parameter values
@@ -982,6 +1080,7 @@ function setupEventListeners() {
     document.getElementById('time-slider').addEventListener('input', (e) => {
         state.time = parseFloat(e.target.value);
         document.getElementById('time-value').textContent = state.time.toFixed(2);
+        renderEquationsTimeDependent();  // Update time-dependent equations
         render();
     });
     

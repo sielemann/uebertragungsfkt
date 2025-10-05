@@ -115,31 +115,31 @@
                             Am anderen Ende der Feder \(x_2\) befindet sich ein Dämpfer, an dem eine Masse befestigt ist. 
                             Die Position dieser Masse wird durch \(x_3 = y\) beschrieben.
                         </p>
-                    <div class="equations">
-                        <!-- Row 1: State vector and Input -->
-                        <div class="equation-grid">
-                            <div class="equation-item">
-                                <p><strong>Zustandsvektor:</strong></p>
-                                <div id="state-vector-eq" class="equation-katex"></div>
+                        <div class="equations">
+                            <!-- Row 1: State vector and Input -->
+                            <div class="equation-grid">
+                                <div class="equation-item">
+                                    <p><strong>Zustandsvektor:</strong></p>
+                                    <div id="state-vector-eq" class="equation-katex"></div>
+                                </div>
+                                <div class="equation-item">
+                                    <p><strong>Eingang:</strong></p>
+                                    <div id="input-eq" class="equation-katex"></div>
+                                </div>
                             </div>
-                            <div class="equation-item">
-                                <p><strong>Eingang:</strong></p>
-                                <div id="input-eq" class="equation-katex"></div>
+                            
+                            <!-- Row 2: System matrix and Differential equation -->
+                            <div class="equation-grid">
+                                <div class="equation-item">
+                                    <p><strong>Zustandsraummodell:</strong></p>
+                                    <div id="system-matrix-eq" class="equation-katex"></div>
+                                </div>
+                                <div class="equation-item">
+                                    <p><strong>Differentialgleichung:</strong></p>
+                                    <div id="diff-eq-scalar" class="equation-katex"></div>
+                                </div>
                             </div>
                         </div>
-                        
-                        <!-- Row 2: System matrix and Differential equation -->
-                        <div class="equation-grid">
-                            <div class="equation-item">
-                                <p><strong>Zustandsraummodell:</strong></p>
-                                <div id="system-matrix-eq" class="equation-katex"></div>
-                            </div>
-                            <div class="equation-item">
-                                <p><strong>Differentialgleichung:</strong></p>
-                                <div id="diff-eq-scalar" class="equation-katex"></div>
-                            </div>
-                        </div>
-                    </div>
                     </div>
                 </section>
 
@@ -163,6 +163,35 @@
                         <canvas id="trajectory-canvas"></canvas>
                     </div>
                 </section>
+
+                <section class="canvas-section collapsible">
+                    <h2 class="collapsible-header">
+                        <span class="collapse-icon">▼</span>
+                        Übertragungsfunktion
+                    </h2>
+                    <div class="collapsible-content">
+                        <div class="equations">
+                            <!-- Row 1: Complex conjugate values -->
+                            <div class="equation-item">
+                                <p><strong>Komplexe Argumente und Gewichte für Grundformen des Eingangs :</strong></p>
+                                <div id="complex-parameters-eq" class="equation-katex"></div>
+                            </div>
+                            
+                            <!-- Row 2: Input equation with complex values and damped trigonometrical equation -->
+                            <div class="equation-item">
+                                <p><strong>Eingang:</strong></p>
+                                <div id="complex-input-eq" class="equation-katex"></div>
+                            </div>
+
+                            <!-- Row 3: Input equation with complex values and damped trigonometrical equation for current time -->
+                            <div class="equation-item">
+                                <p><strong>Eingang für aktuelle Zeit:</strong></p>
+                                <div id="complex-input-now-eq" class="equation-katex"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>                
             </main>
         </div>
 
