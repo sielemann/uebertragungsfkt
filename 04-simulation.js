@@ -22,7 +22,7 @@ const state = {
     // Simulation data (will store full trajectory)
     trajectory: [],
     maxTime: 10.0,
-    dt: 0.01,   // Integration time step
+    dt: 0.02,   // Integration time step
 };
 
 // ============================================================================
@@ -43,12 +43,30 @@ class SpringDamperMassSystem {
             x3: [],  // Position
             x3d: [],  // Velocity
             u: [],   // Ground input
+            y_transient: [],  // Transient response
+            y_steady: [],     // Steady-state response
         };
     }
     
     // Ground motion (sinusoidal)
     groundPosition(t) {
         return state.A * Math.sin(2 * Math.PI * state.f * t);
+    }
+    
+    // Get state-space matrices A, B, C, D from physical parameters
+    getStateSpaceMatrices() {
+        const m = state.m;
+        const c = state.c;
+        const d = state.d;
+        
+        return {
+            A: math.matrix([[0, 1], 
+                [-(c/m), -(c/d)]]),
+            B: math.matrix([[0], 
+                [c/m]]),
+            C: math.matrix([[1, 0]]),
+            D: math.matrix([[0]])
+        };
     }
     
     // State space dynamics: dx/dt = f(x, u, t)
@@ -107,13 +125,89 @@ class SpringDamperMassSystem {
         this.history.x3d.push(this.x[1]);
         this.history.u.push(this.groundPosition(0));
         
+        // Get state-space matrices for analytic solution
+        const {A, B, C, D} = this.getStateSpaceMatrices();
+
+        // Store initial state for transient response calculation
+        const x0 = math.matrix([[this.x[0]], [this.x[1]]]);
+        
+        // Define complex frequency pairs for sinusoidal input u(t) = A*sin(2πft)
+        // Using Euler's formula: sin(ωt) = (1/2j)[e^(jωt) - e^(-jωt)] (real weight 1/2 would result in cosine, thus keeping the implementation flexible with complex weights)
+        // We need conjugate pairs s = ±jω to get real-valued output
+        const omega = 2 * Math.PI * state.f;
+        const s_values = [
+            { s: math.complex(0, omega),   weight: math.complex(0, -0.5) },  // s = +jω, weight = -j/2
+            { s: math.complex(0, -omega),  weight: math.complex(0, 0.5) }    // s = -jω, weight = +j/2
+        ];
+        
+        // Precompute transfer functions and matrices for each s value
+        const I = math.identity(2);
+        const s_data = s_values.map(({s, weight}) => {
+            const sI = math.multiply(s, I);
+            const sI_minus_A = math.subtract(sI, A);
+            const inv_sI_A = math.inv(sI_minus_A);
+            
+            // Transfer function G(s) = C(sI-A)^{-1}B + D
+            const G_s = math.add(
+                math.multiply(math.multiply(C, inv_sI_A), B),
+                D
+            );
+            
+            // Extract scalar from 1x1 matrix
+            const G_s_scalar = math.subset(G_s, math.index(0, 0));
+            
+            return {
+                s: s,
+                weight: weight,
+                inv_sI_A: inv_sI_A,
+                G_s: G_s_scalar
+            };
+        });
+        
         while (this.time < tMax) {
+            // Current time
+            const t = this.time;
+
+            // Numeric integration
             this.integrate(state.dt);
+            
+            // Compute matrix exponential e^{At} (same for all s values)
+            const At = math.multiply(A, t);
+            const expAt = math.expm(At);
+            
+            // Sum contributions from all s values (conjugate pairs)
+            let y_transient_total = math.complex(0, 0);
+            let y_steady_total = math.complex(0, 0);
+            
+            for (const {s, weight, inv_sI_A, G_s} of s_data) {
+                // Transient response: weight * C e^{At} [x_0 - (sI-A)^{-1}B]
+                const inv_sI_A_B = math.multiply(inv_sI_A, B);
+                const x0_diff = math.subtract(x0, inv_sI_A_B);
+                const y_trans = math.multiply(C, math.multiply(expAt, x0_diff));
+                const y_trans_scalar = math.subset(y_trans, math.index(0, 0));
+                const y_trans_weighted = math.multiply(weight, y_trans_scalar);
+                
+                // Steady-state response: weight * G(s) * e^{st}
+                const est = math.exp(math.multiply(s, t));
+                const y_steady_weighted = math.multiply(math.multiply(weight, G_s), est);
+                
+                // Accumulate
+                y_transient_total = math.add(y_transient_total, y_trans_weighted);
+                y_steady_total = math.add(y_steady_total, y_steady_weighted);
+            }
+            
+            // Multiply by input amplitude A and extract real part
+            const input_amplitude = state.A;
+            const y_transient_real = math.re(math.multiply(input_amplitude, y_transient_total));
+            const y_steady_real = math.re(math.multiply(input_amplitude, y_steady_total));
+            
+            this.history.y_transient.push(y_transient_real);
+            this.history.y_steady.push(y_steady_real);
         }
         return this.history;
     }
     
-    // Get state at specific time (interpolation)
+    // Get state at specific time (not proper interpolation, just nearest neighbor for now)
     getStateAt(t) {
         if (this.history.t.length === 0) return { x3: 0, x3d: 0, u: 0 };
         
@@ -125,6 +219,7 @@ class SpringDamperMassSystem {
                 break;
             }
         }
+
         
         return {
             x3: this.history.x3[idx] || 0,
@@ -480,45 +575,47 @@ class TrajectoryRenderer {
         
         // Find data range
         const tMax = Math.max(...system.history.t);
+        
+        // Compute total analytic solution
+        const y_total = system.history.y_transient.map((yt, i) => 
+            yt + system.history.y_steady[i]
+        );
+        
+        // Find max values for scaling
         const x3Max = Math.max(...system.history.x3.map(Math.abs));
+        const yTransMax = Math.max(...system.history.y_transient.map(Math.abs));
+        const ySteadyMax = Math.max(...system.history.y_steady.map(Math.abs));
+        const yTotalMax = Math.max(...y_total.map(Math.abs));
+        const positionMax = Math.max(x3Max, yTransMax, ySteadyMax, yTotalMax);
+        
         const x3dMax = Math.max(...system.history.x3d.map(Math.abs));
         
         // Scales
         const xScale = plotWidth / tMax;
-        const y3Scale = plotHeight / (x3Max * 1.2 + 0.1);
+        const y3Scale = plotHeight / (positionMax * 1.2 + 0.1);
         const y3dScale = plotHeight / (x3dMax * 1.2 + 0.1);
         
-        // Plot 1: Position
-        this.plotTrajectory(
+        // Plot 1: Position with multiple curves
+        this.plotMultipleTrajectories(
             ctx,
             margin.left,
             margin.top,
             plotWidth,
             plotHeight,
             system.history.t,
-            system.history.x3,
+            [
+                { data: y_total, color: '#27ae60', label: 'Analytisch', lineWidth: 2.0 },
+                { data: system.history.y_transient, color: '#e74c3c', label: 'Übergang', lineWidth: 1 },
+                { data: system.history.y_steady, color: '#3498db', label: 'Stationär', lineWidth: 1 },
+                { data: system.history.x3, color: '#2c3e50', label: 'Numerisch', lineWidth: 2.0, lineDash: [5, 5] }
+            ],
             currentTime,
             xScale,
             y3Scale,
-            'Position [m]',
-            '#2c3e50'
+            'Ausgang: Position [m]'
         );
         
-        // Plot 2: Velocity
-        this.plotTrajectory(
-            ctx,
-            margin.left,
-            margin.top + plotHeight + 30,
-            plotWidth,
-            plotHeight,
-            system.history.t,
-            system.history.x3d,
-            currentTime,
-            xScale,
-            y3dScale,
-            'Geschwindigkeit [m/s]',
-            '#555'
-        );
+
         
         // X-axis label
         ctx.fillStyle = '#2c3e50';
@@ -527,7 +624,11 @@ class TrajectoryRenderer {
         ctx.fillText('Zeit [s]', w / 2, h - 10);
     }
     
-    plotTrajectory(ctx, x, y, w, h, tData, yData, currentTime, xScale, yScale, label, color) {
+    
+    
+    plotMultipleTrajectories(ctx, x, y, w, h, tData, curves, currentTime, xScale, yScale, label, lineDash = []) {
+        // curves is an array of {data, color, label, lineWidth}
+        
         // Background
         ctx.fillStyle = '#f8f9fa';
         ctx.fillRect(x, y, w, h);
@@ -552,25 +653,18 @@ class TrajectoryRenderer {
         ctx.lineTo(x + w, zeroY);
         ctx.stroke();
         
-        // Full trajectory (light)
-        ctx.strokeStyle = color + '40';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        for (let i = 0; i < tData.length; i++) {
-            const px = x + tData[i] * xScale;
-            const py = zeroY - yData[i] * yScale;
-            if (i === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-        }
-        ctx.stroke();
-        
-        // Trajectory up to current time (bold)
-        const currentIdx = tData.findIndex(t => t >= currentTime);
-        if (currentIdx > 0) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2.5;
+        // Plot each curve
+        for (const curve of curves) {
+            const yData = curve.data;
+            const color = curve.color;
+            const lineWidth = curve.lineWidth || 2;
+            const lineDash = curve.lineDash || [];
+            
+            // Full trajectory (light)
+            ctx.strokeStyle = color + '40';
+            ctx.lineWidth = lineWidth * 0.6;
             ctx.beginPath();
-            for (let i = 0; i <= currentIdx; i++) {
+            for (let i = 0; i < tData.length; i++) {
                 const px = x + tData[i] * xScale;
                 const py = zeroY - yData[i] * yScale;
                 if (i === 0) ctx.moveTo(px, py);
@@ -578,13 +672,21 @@ class TrajectoryRenderer {
             }
             ctx.stroke();
             
-            // Current point
-            const px = x + tData[currentIdx] * xScale;
-            const py = zeroY - yData[currentIdx] * yScale;
-            ctx.fillStyle = '#34495e';
-            ctx.beginPath();
-            ctx.arc(px, py, 5, 0, 2 * Math.PI);
-            ctx.fill();
+            // Trajectory up to current time (bold)
+            const currentIdx = tData.findIndex(t => t >= currentTime);
+            if (currentIdx > 0) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
+                ctx.setLineDash(lineDash);
+                ctx.beginPath();
+                for (let i = 0; i <= currentIdx; i++) {
+                    const px = x + tData[i] * xScale;
+                    const py = zeroY - yData[i] * yScale;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
         }
         
         // Current time marker
@@ -598,11 +700,24 @@ class TrajectoryRenderer {
         ctx.stroke();
         ctx.setLineDash([]);
         
-        // Label
+        // Main label
         ctx.fillStyle = '#2c3e50';
         ctx.font = 'bold 13px sans-serif';
         ctx.textAlign = 'left';
         ctx.fillText(label, x + 5, y + 15);
+        
+        // Legend for each curve (positioned on right side)
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'left';
+        let legendY = y + 15;
+        const legendX = x + w - 80;  // 100px from right edge
+        for (const curve of curves) {
+            ctx.fillStyle = curve.color;
+            ctx.fillRect(legendX, legendY - 8, 15, 3);
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillText(curve.label, legendX + 20, legendY);
+            legendY += 15;
+        }
     }
 }
 
@@ -860,4 +975,12 @@ document.addEventListener('DOMContentLoaded', () => {
     resimulate();
     updatePlayPauseButtons();
     startAnimation();
+    
+    // Enable auto-rendering of inline math with \(...\) delimiters
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+    });
 });

@@ -238,6 +238,18 @@ footer {
     border-top: 3px solid #34495e;
 }
 
+footer a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+footer a:hover {
+    color: #5dade2;
+    text-decoration: underline;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     #content-wrapper {

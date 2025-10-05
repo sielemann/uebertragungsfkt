@@ -8,6 +8,10 @@
     <!-- KaTeX for math rendering -->
     <link rel="stylesheet" href="katex/katex.min.css">
     <script defer src="katex/katex.min.js"></script>
+    <script defer src="katex/contrib/auto-render.min.js"></script>
+    
+    <!-- math.js for matrix operations and complex numbers -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
 </head>
 <body>
     <div id="main-container">
@@ -95,6 +99,13 @@
                         Systemgleichungen
                     </h2>
                     <div class="collapsible-content">
+                        <p style="margin-bottom: 15px; line-height: 1.6;">
+                            In der Ebene wird das Ende einer Feder entsprechend Eingang \(u\) bewegt. 
+                            Die Positionen der beiden Enden der Feder werden durch \(x_1\) und \(x_2\) beschrieben 
+                            (also \(x_1 = u\)).
+                            Am anderen Ende der Feder \(x_2\) befindet sich ein Dämpfer, an dem eine Masse befestigt ist. 
+                            Die Position dieser Masse wird durch \(x_3 = y\) beschrieben.
+                        </p>
                     <div class="equations">
                         <!-- Row 1: State vector and Input -->
                         <div class="equation-grid">
@@ -151,7 +162,7 @@
         </div>
 
         <footer>
-            <p>UniBW 17. Oktober 2025</p>
+            <p>Zurück zur <a href="01-einleitung.html">Präsentation</a></p>
         </footer>
     </div>
 

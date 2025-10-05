@@ -55,6 +55,7 @@ Fragen
 
 ::: notes
 Fragen
+ - Wer kennt diese Darstellung schon (um abzuschätzen, wieviel Zeit ich für Wiederholung verwende)?
  - Warum linear? Weil A, B, C, D nicht von x oder u abhängen.
  - Welche Größen haben A sowie B, C sowie D? nxn, nx1, 1xn, Skalar (wenn SISO, d.h. u und y Länge 1 haben)
 :::
@@ -73,6 +74,13 @@ Fragen
      = b_q \frac{d^q u(t)}{dt^q} + b_{q-1} \frac{d^{q-1} u(t)}{dt^{q-1}} + \ldots + b_1 \frac{du(t)}{dt} + b_0 u(t)
      $$
    - Differentialgleichung nichtlinear
+
+::: notes
+Fragen
+ - Wer kennt diese Darstellung schon (um abzuschätzen, wieviel Zeit ich für Wiederholung verwende)?
+ - Warum linear? Weil ai und bi nicht von x oder u abhängen.
+:::
+
 
 ## Wiederholung 1
 
@@ -124,7 +132,7 @@ Fragen
 
  - Wie können Simulationsaufgaben für lineare und nichtlineare Systeme berechnet werden? Welche Aufgaben gibt es?
    - Lösung für beliebige, zeitvariable Eingänge
-      - Analytisch mit *Faltungsgleichung* (auch *Bewegungsgleichung* bzw. *Bewegungsgleichung für Ausgänge* in Lunze)
+      - Analytisch mit *Faltungsgleichung* (nur für lineare Systeme, auch *Bewegungsgleichung* bzw. *Bewegungsgleichung für Ausgänge* in Lunze)
         - $x(t) = e^{At} x_0 + \int_0^t e^{A(t-\tau)} B u(\tau) d\tau$ <!-- KJA Gl. 5.14 und Lunze Gl. 5.13-->
         - $y(t) = C e^{At} x_0 + \int_0^t C e^{A(t-\tau)} B u(\tau) d\tau + D u(t)$ <!-- KJA Gl. 5.15 und Lunze Gl. 5.17-->
       - Numerische Verfahren für gewöhnliche Differenzialgleichungen
@@ -141,13 +149,19 @@ Fragen
  - Wie heissen der erste und zweite Summand der analytischen Lösung? Freie und erzwungene Lösung
 :::
 
+## Beispiel {.unnumbered}
 
+<div style="text-align: center; padding: 50px;">
+  <a href="04-simulation.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;">
+    Beispiel in neuem Tab öffnen
+  </a>
+</div>
 
-## Beispiele mit App
-
- - App: linearisiertes Beispielmodell, Übergangsverhalten, stationäres Verhalten, sinusförmige Eingangssignale, Fourieranalyse und Superposition
+::: notes
+Öffne die Simulation in einem neuen Tab. Danach mit Alt+Tab zurück zur Präsentation!
+ - Linearisiertes Beispielmodell, Übergangsverhalten, stationäres Verhalten, sinusförmige Eingangssignale, Fourieranalyse und Superposition
  - Hinarbeiten auf Beobachtungen: Kann mit einfachen Signalen und Superpositionsprinzip viele Eingänge darstellen und Ausgänge berechnen. Beim Ändern von Eingangsfrequenz ändern sich Frequenz und Verstärkung von Ausgängen.
-
+:::
 
 
 ## Lernziele heute
@@ -318,7 +332,7 @@ Fragen
 
 
  - Umformen
-     - $y(t) = \underbrace{C e^{At} \left[ x_0 - (sI-A)^{-1} B \right]}_{\text{transiente Antwort}} + \underbrace{\left[ C (sI-A)^{-1} B + D \right]}_{\text{stationäre Antwort}} e^{s t}$
+     - $y(t) = \underbrace{C e^{At} \left[ x_0 - (sI-A)^{-1} B \right]}_{\text{transiente Antwort}} + \underbrace{\left[ C (sI-A)^{-1} B + D \right] e^{s t}}_{\text{stationäre Antwort}} $
  - Wenn das System asymptotisch stabil ist, dann wird die transiente Antwort gegen Null gehen
  - Die stationäre Antwort für Grundform $u(t) = e^{s t}$ als Eingang kann geschrieben werden
    $y_{stat}(t) = G(s) e^{s t}$
