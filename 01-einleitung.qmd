@@ -147,7 +147,7 @@ Fragen
  - Wie heissen der erste und zweite Summand der analytischen Lösung? Freie und erzwungene Lösung
 :::
 
-## Beispiel {.unnumbered}
+## Beispiel 1 {.unnumbered}
 
 <div style="text-align: center; padding: 50px;">
   <a href="04-simulation.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;">
@@ -379,9 +379,21 @@ Fragen
    Allgemeiner:
    - $u(t) = \sum_{i=1}^N U_i e^{s_i t} \implies y(t) = \sum_{i=1}^N U_i G(s_i) e^{s_i t}$
 
-## Rechenbeispiel
 
-Beispiele 6.1 nach Lunze: DGl, Zustandsraumdarstellung. Übertragungsfunktion aus A, B, C, D berechnen. Aufgabe: Finde stationäre Lösung für u = cos( omega t). Verwende konjugiert komplexes Paar von s. Berechne u1, u2, y1, y2. Berechne y = y1+y2. Plot y_stat, y, u.
+## Beispiel 2 {.unnumbered}
+
+<div style="text-align: center; padding: 50px;">
+  <a href="04-simulation.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;">
+    Feder-Masse-Schwinger in neuem Tab öffnen
+  </a>
+</div>
+
+::: notes
+Öffne die Simulation in einem neuen Tab. Danach mit Alt+Tab zurück zur Präsentation!
+ - Übertragungsfunktion aus A, B, C, D berechnen. Aufgabe: Finde stationäre Lösung für u = sin( omega t). Verwende konjugiert komplexes Paar von s. Berechne u1, u2, y1, y2. Berechne y = y1+y2. Plot y_stat, y, u.
+ - Ergibt immer reelle Antwort wenn paar konjugiert komplexer Argumente verwendet wird
+:::
+
 
 ## Konvertierung Zustandsraum zu Übertragungsfunktion
 
@@ -495,17 +507,164 @@ Fragen
 
  - Wenn wir uns an den Frequenzbereich halten und Signale darin betrachten lernen, dann können viele Operationen einfacher durchgeführt werden (wie diese Multiplikation, i.d.R. Algebra statt Analysis)
 
+
+
+
+
+
 ## Beispiele von Übertragungsfkt
 
 Integrator, Ableitung, Sprung...
 
 
 
+## Eigenschaften der Übertragungsfunktion
+
+<!-- Lunze 6.3.3 -->
+
+Fehlt noch
+
+
+## Darstellungen der Übertragunsfunktion 1
+
+::: {.columns}
+::: {.column width="60%"}
+ - *Bode-Diagramm* (auch *Frequenzkennliniendiagramm*) <!-- Lunze 6.3.3 -->
+    - Oben: $\vert G(j\omega) \vert_{dB}$ als Funktion von $\log_{10} \omega$
+    - Unten: $\angle G(j\omega)_{deg}$ als Funktion von $\log_{10} \omega$
+
+```{python}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 5
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Create figure with two subplots
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 5))
+
+# Frequency range (log scale)
+w = np.logspace(-1, 1, 100)
+
+# Example: First-order low-pass filter G(s) = 1/(s+1)
+# Magnitude in dB: 20*log10(1/sqrt(1+w^2))
+mag_db = -10 * np.log10(1 + w**2)
+
+# Phase in degrees: -arctan(w)
+phase_deg = -np.arctan(w) * 180 / np.pi
+
+# Magnitude plot
+ax1.semilogx(w, mag_db, 'b-', linewidth=2)
+ax1.grid(True, which='both', alpha=0.3)
+ax1.set_ylabel('|G| [dB]', fontsize=12)
+ax1.set_ylim([-40, 5])
+ax1.axhline(0, color='k', linewidth=0.5)
+
+# Phase plot
+ax2.semilogx(w, phase_deg, 'b-', linewidth=2)
+ax2.grid(True, which='both', alpha=0.3)
+ax2.set_xlabel('ω [rad/s]', fontsize=12)
+ax2.set_ylabel('∠G [°]', fontsize=12)
+ax2.set_ylim([-100, 5])
+ax2.axhline(0, color='k', linewidth=0.5)
+
+plt.tight_layout()
+plt.show()
+```
+
+:::
+::: {.column width="40%"}
+| $\vert G(j\omega) \vert$ | $\vert G(j\omega) \vert_{dB} = 20 \log_{10} \vert G \vert$ |
+|:------------------------:|:-----------------------------:|
+|  100                     |      40                       |
+|  10                      |      20                       |
+|  1                       |      0                        |
+|  0.1                     |      -20                      |
+|  0.01                    |      -40                      |
+:::
+:::
+
+
+## Darstellungen der Übertragunsfunktion 2
+
+ - *Nyquist-Diagramm* (auch *Ortskurve*)
+    - Von einem Zeiger mit Länge $\vert G(j\omega) \vert$ und Winkel $\angle G(j\omega)$ gezeichnete Ortskurve
+
+```{python}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 6
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Transfer function
+num = [1]
+den = [1, 1, 1]
+sys = signal.TransferFunction(num, den)
+
+# Frequency range
+w = np.logspace(-2, 2, 500)
+
+# Compute frequency response
+w, H = signal.freqs(num, den, w)
+
+# Nyquist plot
+plt.figure(figsize=(6, 6))
+plt.plot(H.real, H.imag, 'b', linewidth=2)
+plt.plot(H.real, -H.imag, 'b--', linewidth=1, alpha=0.5)
+
+# Add arrow and labels for specific frequency
+omega_example = 0.6
+# Find the point on the curve closest to given omega 
+idx = np.argmin(np.abs(w - omega_example))
+H_point = H[idx]
+
+# Draw arrow from origin to the point
+plt.annotate('', xy=(H_point.real, H_point.imag), xytext=(0, 0),
+            arrowprops=dict(arrowstyle='->', color='red', lw=2))
+
+# Add magnitude label along the arrow
+mid_real = H_point.real / 1.5
+mid_imag = H_point.imag / 1.5
+plt.text(mid_real, mid_imag + 0.15, r'$|G(j\omega)|$', 
+         fontsize=12, color='red', ha='center')
+
+# Draw angle arc
+angle = np.angle(H_point)
+arc_radius = 0.4
+arc_angles = np.linspace(0, angle, 30)
+arc_x = arc_radius * np.cos(arc_angles)
+arc_y = arc_radius * np.sin(arc_angles)
+plt.plot(arc_x, arc_y, 'g-', linewidth=1.5)
+
+# Add angle label
+label_angle = angle / 2
+label_radius = arc_radius + 0.08
+plt.text(label_radius * np.cos(label_angle), 
+         label_radius * np.sin(label_angle), 
+         r'$\phi(\omega)$', fontsize=12, color='green', ha='left')
+
+# Mark the point
+plt.plot(H_point.real, H_point.imag, 'ro', markersize=8)
+
+# Formatting
+plt.axhline(0, color='k', linewidth=0.5)
+plt.axvline(0, color='k', linewidth=0.5)
+plt.grid(True, alpha=0.3)
+plt.xlabel('Real')
+plt.ylabel('Imaginär')
+plt.axis('equal')
+plt.show()
+```
+
+
 ## Rechenregeln: Blockdiagramme...
 
 
 
-## Darstellungen: Bode...
 
 
 ## Nullstellen
