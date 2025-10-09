@@ -151,7 +151,7 @@ Fragen
 
 <div style="text-align: center; padding: 50px;">
   <a href="04-simulation.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;">
-    Feder-Masse-Schwinger in neuem Tab öffnen
+    Feder-Masse-Schwinger 1 in neuem Tab öffnen
   </a>
 </div>
 
@@ -306,7 +306,7 @@ Fragen
 :::
 
 
-## Exponentielle Eingänge
+## Exponentielle Eingänge 1
 
  - Ansatz für Grundform: $u(t) = e^{s t}$ mit $s \in \mathbb{C}$, einer komplexen Zahl
  - Ist $s$ reell, dann ergibt $u(t)$ eine einfache Exponentialfunktion
@@ -316,7 +316,75 @@ Fragen
 - Ist $s = \sigma + j \omega$ und $s^* = \sigma - j \omega$, dann ergibt die Summe der Grundformen eine Kosinusfunktion mit exponentiell auf- oder abklingenden Amplitude
      - $u(t) + u^*(t) = e^{\sigma t} e^{j \omega t} + e^{-\sigma t} e^{-j \omega t} = 2 e^{\sigma t} \cos(\omega t)$
 
-<!-- TODO: Bild verschiedener u(t) für reelle s sowie konj komplexe Paare -->
+## Exponentielle Eingänge 2
+
+<!-- KJA Fig 8.2 -->
+
+```{python}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Create figure with 2 rows and 3 columns
+fig, axes = plt.subplots(2, 3, figsize=(10, 6))
+
+# Define the six cases
+cases = [
+    # Top row
+    {'s': 0 + 0j, 'title': '$s = 0$', 'row': 0, 'col': 0, 'tend': 5},
+    {'s': -1 + 0j, 'title': '$s = -1$', 'row': 0, 'col': 1, 'tend': 5},
+    {'s': 1 + 0j, 'title': '$s = 1$', 'row': 0, 'col': 2, 'tend': 5},
+    # Bottom row
+    {'s': 0 + 1j, 'title': '$s = \\pm j$', 'row': 1, 'col': 0, 'tend': 15},
+    {'s': -0.2 + 1j, 'title': '$s = -0.2 \\pm j$', 'row': 1, 'col': 1, 'tend': 15},
+    {'s': 0.2 + 1j, 'title': '$s = 0.2 \\pm j$', 'row': 1, 'col': 2, 'tend': 15},
+]
+
+for case in cases:
+    s = case['s']
+    ax = axes[case['row'], case['col']]
+    tend = case['tend']
+    
+    # Create time vector for this specific plot
+    t = np.linspace(0, tend, 500)
+    
+    # Calculate u(t) = e^(st)
+    # For complex s, we take the real part of the sum u(t) + u*(t)
+    if s.imag != 0:
+        # Complex case: u(t) + u*(t) = 2*Re(e^(st)) = 2*e^(sigma*t)*cos(omega*t)
+        sigma = s.real
+        omega = s.imag
+        u_t = 2 * np.exp(sigma * t) * np.cos(omega * t)
+        
+        # Plot envelope for middle and right plots in bottom row
+        if case['col'] >= 1:
+            envelope_pos = 2 * np.exp(sigma * t)
+            envelope_neg = -2 * np.exp(sigma * t)
+            ax.plot(t, envelope_pos, 'gray', linewidth=1, linestyle='--', alpha=0.6)
+            ax.plot(t, envelope_neg, 'gray', linewidth=1, linestyle='--', alpha=0.6)
+    else:
+        # Real case
+        u_t = np.exp(s.real * t)
+    
+    # Plot the signal
+    ax.plot(t, u_t, 'b-', linewidth=1.5)
+    ax.set_xlabel('Time $t$', fontsize=9)
+    ax.set_ylabel('Signal $u(t)$', fontsize=9)
+    ax.set_title(case['title'], fontsize=10)
+    ax.grid(True, alpha=0.3)
+    
+    # Set reasonable y-limits for better visualization
+    if case['col'] == 2 and case['row'] == 0:  # s=1 case
+        ax.set_ylim([0, 150])
+    elif case['col'] == 2 and case['row'] == 1:  # s=0.2+j case
+        ax.set_ylim([-15, 15])
+
+plt.tight_layout()
+plt.show()
+```
 
 ## Ausgänge für exponentielle Eingänge 1
 
@@ -384,7 +452,7 @@ Fragen
 
 <div style="text-align: center; padding: 50px;">
   <a href="04-simulation.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;">
-    Feder-Masse-Schwinger in neuem Tab öffnen
+    Feder-Masse-Schwinger 1 in neuem Tab öffnen
   </a>
 </div>
 
@@ -505,24 +573,195 @@ Fragen
 
    $\implies Y(s) = G(s)U(s)$   
 
- - Wenn wir uns an den Frequenzbereich halten und Signale darin betrachten lernen, dann können viele Operationen einfacher durchgeführt werden (wie diese Multiplikation, i.d.R. Algebra statt Analysis)
+
+*Vgl. Motivation: Wenn wir uns an den Frequenzbereich halten und Signale darin betrachten lernen, dann können viele Operationen einfacher durchgeführt werden (wie diese Multiplikation, d.h. Algebra statt Analysis)*
 
 
 
+## Rechenregeln: Blockdiagramme
 
 
+<!-- KJA fig 8.6, Lunze Beispiel 6.5.6 -->
 
-## Beispiele von Übertragungsfkt
+::: {.columns}
+::: {.column width="33%"}
+**Reihenschaltung**
 
-Integrator, Ableitung, Sprung...
+```{python}
+#| echo: false
+#| fig-width: 3
+#| fig-height: 1.5
+
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.patches import FancyBboxPatch, Circle, FancyArrowPatch
+
+fig, ax = plt.subplots(figsize=(3, 1.5))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 3)
+ax.axis('off')
+
+# Nodes
+ax.add_patch(Circle((1, 1.5), 0.3, fill=False, edgecolor='black'))
+ax.text(1, 1.5, 'u', ha='center', va='center', fontsize=10)
+
+ax.add_patch(FancyBboxPatch((3, 1), 1.2, 1, boxstyle="round,pad=0.05", 
+                             fill=False, edgecolor='black'))
+ax.text(3.6, 1.5, '$G_1$', ha='center', va='center', fontsize=10)
+
+ax.add_patch(FancyBboxPatch((5.5, 1), 1.2, 1, boxstyle="round,pad=0.05", 
+                             fill=False, edgecolor='black'))
+ax.text(6.1, 1.5, '$G_2$', ha='center', va='center', fontsize=10)
+
+ax.add_patch(Circle((8.5, 1.5), 0.3, fill=False, edgecolor='black'))
+ax.text(8.5, 1.5, 'y', ha='center', va='center', fontsize=10)
+
+# Arrows
+ax.annotate('', xy=(2.9, 1.5), xytext=(1.3, 1.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+ax.annotate('', xy=(5.4, 1.5), xytext=(4.3, 1.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+ax.annotate('', xy=(8.2, 1.5), xytext=(6.8, 1.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+
+plt.tight_layout()
+plt.show()
+```
+
+$$G_{yu} = G_2 \cdot G_1$$
+:::
+
+::: {.column width="33%"}
+**Parallelschaltung**
+
+```{python}
+#| echo: false
+#| fig-width: 3
+#| fig-height: 1.5
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Circle
+
+fig, ax = plt.subplots(figsize=(3, 1.5))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 3)
+ax.axis('off')
+
+# Nodes
+ax.add_patch(Circle((1, 1.5), 0.3, fill=False, edgecolor='black'))
+ax.text(1, 1.5, 'u', ha='center', va='center', fontsize=10)
+
+ax.add_patch(FancyBboxPatch((3, 1.8), 1.2, 0.8, boxstyle="round,pad=0.05", 
+                             fill=False, edgecolor='black'))
+ax.text(3.6, 2.2, '$G_1$', ha='center', va='center', fontsize=10)
+
+ax.add_patch(FancyBboxPatch((3, 0.4), 1.2, 0.8, boxstyle="round,pad=0.05", 
+                             fill=False, edgecolor='black'))
+ax.text(3.6, 0.8, '$G_2$', ha='center', va='center', fontsize=10)
+
+ax.add_patch(Circle((6, 1.5), 0.3, fill=False, edgecolor='black'))
+ax.text(6, 1.5, '+', ha='center', va='center', fontsize=10)
+
+ax.add_patch(Circle((8.5, 1.5), 0.3, fill=False, edgecolor='black'))
+ax.text(8.5, 1.5, 'y', ha='center', va='center', fontsize=10)
+
+# Arrows
+ax.annotate('', xy=(2.9, 2.2), xytext=(1.3, 1.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+ax.annotate('', xy=(2.9, 0.8), xytext=(1.3, 1.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+ax.annotate('', xy=(5.7, 1.7), xytext=(4.3, 2.2),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+ax.annotate('', xy=(5.7, 1.3), xytext=(4.3, 0.8),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+ax.annotate('', xy=(8.2, 1.5), xytext=(6.3, 1.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+
+plt.tight_layout()
+plt.show()
+```
+
+$$G_{yu} = G_1 + G_2$$
+:::
+
+::: {.column width="33%"}
+**Rückkopplung (Feedback)**
+
+```{python}
+#| echo: false
+#| fig-width: 3
+#| fig-height: 1.5
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Circle
+
+fig, ax = plt.subplots(figsize=(3, 1.5))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 3)
+ax.axis('off')
+
+# Nodes
+ax.add_patch(Circle((1, 1.5), 0.3, fill=False, edgecolor='black'))
+ax.text(1, 1.5, 'u', ha='center', va='center', fontsize=10)
+
+ax.add_patch(Circle((2.5, 1.5), 0.3, fill=False, edgecolor='black'))
+ax.text(2.5, 1.5, '+', ha='center', va='center', fontsize=10)
+
+ax.add_patch(FancyBboxPatch((4, 1), 1.2, 1, boxstyle="round,pad=0.05", 
+                             fill=False, edgecolor='black'))
+ax.text(4.6, 1.5, '$G_1$', ha='center', va='center', fontsize=10)
+
+ax.add_patch(Circle((7, 1.5), 0.3, fill=False, edgecolor='black'))
+ax.text(7, 1.5, 'y', ha='center', va='center', fontsize=10)
+
+ax.add_patch(FancyBboxPatch((4, 0.1), 1.2, 0.6, boxstyle="round,pad=0.05", 
+                             fill=False, edgecolor='black'))
+ax.text(4.6, 0.4, '$G_2$', ha='center', va='center', fontsize=10)
+
+# Arrows
+ax.annotate('', xy=(2.2, 1.5), xytext=(1.3, 1.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+ax.annotate('', xy=(3.9, 1.5), xytext=(2.8, 1.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+ax.text(3.4, 1.7, 'e', ha='center', va='bottom', fontsize=9)
+ax.annotate('', xy=(6.7, 1.5), xytext=(5.3, 1.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+# Feedback path
+# From bottom of y to right side of G2
+ax.plot([7, 7, 5.3, 5.3], [1.2, 0.4, 0.4, 0.4], 'k-', lw=1.5)
+ax.annotate('', xy=(5.2, 0.4), xytext=(5.3, 0.4),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+# From left side of G2 to summation
+ax.plot([4, 2.5, 2.5], [0.4, 0.4, 1.2], 'k-', lw=1.5)
+ax.annotate('', xy=(2.5, 1.2), xytext=(2.5, 0.5),
+            arrowprops=dict(arrowstyle='->', lw=1.5))
+ax.text(2.8, 0.8, '−', ha='left', va='center', fontsize=10)
+
+plt.tight_layout()
+plt.show()
+```
+
+$$G_{yu} = \frac{G_1}{1 + G_1 G_2}$$
+:::
+:::
+
+
 
 
 
 ## Eigenschaften der Übertragungsfunktion
 
 <!-- Lunze 6.3.3 -->
-
-Fehlt noch
+ - Für technisch interessante Systeme $G(s) = \frac{b_{n-1}s^{n-1} + \dots + b_1 s + b_0}{s^n + a_{n-1}s^{n-1} + \dots + a_1 s + a_0} + d$: Zählergrad $q$ übersteigt Nennergrad $n$ nicht, d.h. $q \leq n$
+ - Statische Verstärkung: $G(0) = \frac{b_0}{a_0}$
+ - Signale sehr hoher Frequenz werden nicht (wenn Durchgriff $d=0$) oder mit Verstärkung übertragen
+    - $\lim_{\omega \to \infty} G(j\omega) = \begin{cases}\frac{b_n}{a_n} + d \quad \text{für } q=n\\d \quad \text{für } q<n\end{cases}$
+ - Übertragungsfunktionen sind symmetrisch
+    - $\vert G(j\omega) \vert = \vert G(-j\omega) \vert$
+    - $\angle G(-j\omega) = -\angle G(j\omega)$
+ - Weitere Überlegungen
+    - Uns interessiert der Frequenzgang $G(j\omega)$: Verstärkung und Phasenverschiebung
+    - Der Einfluss der Dämpfung $\sigma$ in $G(\sigma \pm j\omega)$ braucht nicht detailliert analysiert werden, da dieser wegen Linearität unabhängig aufgeschlagen werden kann 
 
 
 ## Darstellungen der Übertragunsfunktion 1
@@ -661,23 +900,47 @@ plt.show()
 ```
 
 
-## Rechenregeln: Blockdiagramme...
+## Beispiele von Übertragungsfkt
+
+<!-- Lunze Abb. 6.54 -->
 
 
 
 
+## Nullstellen und Pole
 
-## Nullstellen
+ - Pole
+    - Definieren die Eigenbewegungen (auch Modi) des Systems
+    - Stabile systeme haben Pole mit negativen Realteilen (Eigenbewegungen klingen ab)
+    - Verstärkung von Eingängen, die Eigenbewegungen sind, wird unendlich
+ - Nullstellen 
+    - Bestimmen Eingänge, die vom System nicht übertragen werden (Verstärkung verschwindet in stationärer Lösung)
+    - Erzwungene Bewegung (im Gegensatz zu stationärer Lösung) sowie andere Grundeingänge führen in der Regel zu einer Änderung des Ausgangs
+
+*Vgl. Motivation: Insbesondere Pole (d.h. Stabilität) aber auch Nullstellen werden in Regelungstechnik für Strecke und geregelte Strecke entscheidend. Es ist nützlich diese vorhersagen und algebraisch berechnen zu können.*
+
+::: notes
+Bezüglich Regelung können wir noch keine Aussage zur Güte der Regelung treffen. Aber ob ein geregelte System stabil ist, ist ein wichtiges Ergebnis. Wir können dies auch konstruktiv nutzen und ableiten, wie wir ein System stabil machen können.
+:::
+
+<!-- KJA p 239, lunze S. 241/242 -->
 
 
-## Pole
+## Beispiel 3 {.unnumbered}
 
+<div style="text-align: center; padding: 50px;">
+  <a href="04-simulation.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;">
+    Feder-Masse-Schwinger 2 in neuem Tab öffnen
+  </a>
+</div>
 
-## Rechenbeispiele
+::: notes
+Öffne die Simulation in einem neuen Tab. Danach mit Alt+Tab zurück zur Präsentation!
+ - Erkennen von Nullstellen und Polen in Systemen aus Bodediagramm. Darstellung von entsprechenden Ergebnissen im Zeitbereich.
+ - Pol-Nullstellendiagramm???
+:::
 
-Erkennen von Nullstellen und Polen in Systemen aus Bodediagramm. Darstellung von entsprechenden Ergebnissen im Zeitbereich.
-
-Reglerentwurf prinzipiell? Optimierungs- und simulationsbasiert einerseits (ohne Übertragungsfunktion), andererseits Synthese mit Übertragungsfunktion.
+<!-- Lunze Beispiel 6.4 -->
 
 ## Lernziele
 
@@ -689,10 +952,15 @@ Reglerentwurf prinzipiell? Optimierungs- und simulationsbasiert einerseits (ohne
  - *Nullstellen und Pole*
  - *Bode-Diagramme*
 
+<!-- Fehlt/bleibt weg wegen Zeit: Reglerentwurf prinzipiell? Optimierungs- und simulationsbasiert einerseits (ohne Übertragungsfunktion), andererseits Synthese mit Übertragungsfunktion. -->
+
+
 ## Referenzen
 
+<!-- In Kommentaren genannt KJA -->
 Aström, K.J., Murray, R.M. (2008). Feedback Systems: An Introduction for Scientists and Engineers. Princeton University Press.
 
+<!-- In Kommentaren genannt Lunze -->
 Lunze, D. (2022). Regelungstechnik 1: Grundlagen und Praktikum. Springer Spektrum.
 
 Varga, A, Sima, V.: "Numerically stable algorithm for transfer function matrix evaluation" Int. J. 
