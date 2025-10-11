@@ -25,24 +25,24 @@ format:
 
 ## Wiederholung 1
 
- - Mathematische Beschreibungen im Zeitbereich
+ - Mathematische Beschreibungen von dynamischen Systemen im Zeitbereich
    - ?
 
 ::: notes
 Fragen
- - Welche mathematischen Beschreibungen im Zeitbereich kennen Sie?
+ - Welche mathematischen Beschreibungen von dynamischen Systemen im Zeitbereich kennen Sie?
 :::
 
 ## Wiederholung 1
 
- - Mathematische Beschreibungen im Zeitbereich
+ - Mathematische Beschreibungen von dynamischen Systemen im Zeitbereich
    - Zustandsraumdarstellung für lineare Systeme
    - Differentialgleichung linear
    - Differentialgleichung nichtlinear
 
 ## Wiederholung 1
 
- - Mathematische Beschreibungen im Zeitbereich
+ - Mathematische Beschreibungen von dynamischen Systemen im Zeitbereich
    - Zustandsraumdarstellung für lineare Systeme <!-- Lunze Gl. 4.43 mit SISO, d.h. skalarem u, also Vektoren b, c, Skalar d -->
      $$
      \dot{x}(t) = A x(t) + B u(t), \quad x(0) = x_0
@@ -64,7 +64,7 @@ Fragen
 
 ## Wiederholung 1
 
- - Mathematische Beschreibungen im Zeitbereich
+ - Mathematische Beschreibungen von dynamischen Systemen im Zeitbereich
    - Zustandsraumdarstellung für lineare Systeme
    - Differentialgleichung linear <!-- Lunze Gl. 4.3 -->
      $$
@@ -84,7 +84,7 @@ Fragen
 
 ## Wiederholung 1
 
- - Mathematische Beschreibungen im Zeitbereich
+ - Mathematische Beschreibungen von dynamischen Systemen im Zeitbereich
    - Zustandsraumdarstellung für lineare Systeme
    - Differentialgleichung linear
    - Differentialgleichung nichtlinear <!-- KJA Gl. 4.1 -->
@@ -779,19 +779,25 @@ $$G_{yu} = \frac{G_1}{1 + G_1 G_2}$$
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import signal
 
-# Create figure with two subplots
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 5))
+# Transfer function: G(s) = (s+2)/(8s^2 + 3s + 4)
+num = [1, 2]
+den = [8, 3, 4]
+sys = signal.TransferFunction(num, den)
 
 # Frequency range (log scale)
 w = np.logspace(-1, 1, 100)
 
-# Example: First-order low-pass filter G(s) = 1/(s+1)
-# Magnitude in dB: 20*log10(1/sqrt(1+w^2))
-mag_db = -10 * np.log10(1 + w**2)
+# Compute frequency response
+w, H = signal.freqs(num, den, w)
 
-# Phase in degrees: -arctan(w)
-phase_deg = -np.arctan(w) * 180 / np.pi
+# Convert to magnitude (dB) and phase (degrees)
+mag_db = 20 * np.log10(np.abs(H))
+phase_deg = np.angle(H) * 180 / np.pi
+
+# Create figure with two subplots
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 5))
 
 # Magnitude plot
 ax1.semilogx(w, mag_db, 'b-', linewidth=2)
@@ -805,7 +811,7 @@ ax2.semilogx(w, phase_deg, 'b-', linewidth=2)
 ax2.grid(True, which='both', alpha=0.3)
 ax2.set_xlabel('ω [rad/s]', fontsize=12)
 ax2.set_ylabel('∠G [°]', fontsize=12)
-ax2.set_ylim([-100, 5])
+ax2.set_ylim([-130, 5])
 ax2.axhline(0, color='k', linewidth=0.5)
 
 plt.tight_layout()
@@ -840,8 +846,8 @@ import matplotlib.pyplot as plt
 from scipy import signal
 
 # Transfer function
-num = [1]
-den = [1, 1, 1]
+num = [1, 2]
+den = [8, 3, 4]
 sys = signal.TransferFunction(num, den)
 
 # Frequency range
@@ -900,11 +906,114 @@ plt.show()
 ```
 
 
-## Beispiele von Übertragungsfkt
+## Beispiele von Übertragungsfunktionen
 
 <!-- Lunze Abb. 6.54 -->
 
+```{python}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 8
 
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Define transfer functions
+systems = {
+    'Proportional': {'num': [1], 'den': [1], 'formula': r'$G(s) = K$'},
+    'Integral': {'num': [0.5], 'den': [1, 0], 'formula': r'$G(s) = \frac{K}{s}$'},
+    'Differenzial': {'num': [1, 0], 'den': [0.1, 1], 'formula': r'$G(s) = Ks$'},
+    'PT1-Glied': {'num': [1], 'den': [1, 1], 'formula': r'$G(s) = \frac{K}{Ts+1}$'},
+    'PT2-Glied': {'num': [1], 'den': [1, 1, 1], 'formula': r'$G(s) = \frac{K}{Ts^2+Ts+1}$'},
+#    'Totzeit': {'num': [1], 'den': [1], 'delay': 0.5, 'formula': r'$G(s) = e^{-Ts}$'}
+}
+
+# Time and frequency arrays
+t = np.linspace(0, 5, 500)
+w = np.logspace(-2, 2, 200)
+
+# Create figure with subplots - 6 columns (1 for labels + 5 for systems), 3 rows with height ratios
+fig = plt.figure(figsize=(17, 7))
+gs = fig.add_gridspec(4, 6, hspace=0.4, wspace=0.3, 
+                      height_ratios=[0.3, 1.6, 1, 1], width_ratios=[0.2, 1, 1, 1, 1, 1])
+
+# Add row labels on the left
+row_labels = ['Ausdruck', 'Sprungantwort', 'Bode-Diagramm', '']
+for row_idx, label in enumerate(row_labels):
+    ax_label = fig.add_subplot(gs[row_idx, 0])
+    ax_label.text(0.5, 0.5, label, ha='center', va='center', 
+                  fontsize=11, fontweight='bold', rotation=90, transform=ax_label.transAxes)
+    ax_label.axis('off')
+
+for idx, (name, params) in enumerate(systems.items()):
+    # Offset column index by 1 to account for label column
+    col_idx = idx + 1
+    # Create transfer function
+    sys = signal.TransferFunction(params['num'], params['den'])
+    
+    # Handle time delay for dead time
+    if 'delay' in params:
+        t_response, y_response = signal.step(sys, T=t)
+        # Apply delay
+        delay_samples = int(params['delay'] / (t[1] - t[0]))
+        y_delayed = np.zeros_like(y_response)
+        if delay_samples < len(y_response):
+            y_delayed[delay_samples:] = y_response[:-delay_samples]
+        y_response = y_delayed
+        t_response = t
+    else:
+        t_response, y_response = signal.step(sys, T=t)
+    
+    # Compute frequency response
+    w_sys, H = signal.freqs(params['num'], params['den'], w)
+    
+    # Apply delay in frequency domain for dead time
+    if 'delay' in params:
+        H = H * np.exp(-1j * w_sys * params['delay'])
+    
+    mag_db = 20 * np.log10(np.abs(H) + 1e-10)
+    phase_deg = np.angle(H) * 180 / np.pi
+    
+    # Row 1: Transfer function formula
+    ax1 = fig.add_subplot(gs[0, col_idx])
+    ax1.text(0.5, 0.5, params['formula'], ha='center', va='center', 
+             fontsize=12, transform=ax1.transAxes)
+    ax1.set_title(name, fontsize=10, fontweight='bold')
+    ax1.axis('off')
+
+    # Row 2: Time response
+    ax2 = fig.add_subplot(gs[1, col_idx])
+    ax2.plot(t_response, y_response, 'b-', linewidth=1.5)
+    ax2.grid(True, alpha=0.3)
+    ax2.set_ylim([-0.2, 2.5])
+    ax2.set_xlabel('t [s]', fontsize=8)
+    ax2.set_ylabel('y(t)', fontsize=8)
+    ax2.tick_params(labelsize=7)
+        
+    # Row 3: Bode magnitude
+    ax3 = fig.add_subplot(gs[2, col_idx])
+    ax3.semilogx(w_sys, mag_db, 'b-', linewidth=1.5)
+    ax3.grid(True, which='both', alpha=0.3)
+    ax3.set_ylim([-60, 20])
+    ax3.set_xlabel('ω [rad/s]', fontsize=8)
+    ax3.set_ylabel('|G| [dB]', fontsize=8)
+    ax3.tick_params(labelsize=7)
+    ax3.axhline(0, color='k', linewidth=0.5)
+
+    # Row 4: Bode phase
+    ax4 = fig.add_subplot(gs[3, col_idx])
+    ax4.semilogx(w_sys, phase_deg, 'b-', linewidth=1.5)
+    ax4.grid(True, which='both', alpha=0.3)
+    ax4.set_ylim([-180, 100])
+    ax4.set_xlabel('ω [rad/s]', fontsize=8)
+    ax4.set_ylabel('∠G [°]', fontsize=8)
+    ax4.tick_params(labelsize=7)
+    ax4.axhline(0, color='k', linewidth=0.5)
+
+plt.tight_layout()
+plt.show()
+```
 
 
 ## Nullstellen und Pole
@@ -942,7 +1051,7 @@ Bezüglich Regelung können wir noch keine Aussage zur Güte der Regelung treffe
 
 <!-- Lunze Beispiel 6.4 -->
 
-## Lernziele
+## Rückblick Lernziele
 
  - Vorteile der Betrachtung im Frequenzbereich: Einfache (algebraische) Berechnung!
  - Ausgang für exponentielle Eingänge
@@ -957,6 +1066,8 @@ Bezüglich Regelung können wir noch keine Aussage zur Güte der Regelung treffe
 
 ## Referenzen
 
+::: {.columns}
+::: {.column width="70%"}
 <!-- In Kommentaren genannt KJA -->
 Aström, K.J., Murray, R.M. (2008). Feedback Systems: An Introduction for Scientists and Engineers. Princeton University Press.
 
@@ -967,4 +1078,12 @@ Varga, A, Sima, V.: "Numerically stable algorithm for transfer function matrix e
 Control, vol. 33, No. 6, pp. 1123-1133, 1981 
 
 Tani, J. (2017). Control Systems I. Lecture Notes. ETH Zurich.
+:::
+
+::: {.column width="30%"}
+Unterlagen auf GitHub:
+![](Bilder/github_qr.png)
+:::
+:::
+
 
