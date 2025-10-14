@@ -249,6 +249,10 @@ canvas {
     border: 1px solid #ddd;
 }
 
+#bode-canvas {
+    height: 600px;
+}
+
 footer {
     background: #2c3e50;
     color: #ecf0f1;

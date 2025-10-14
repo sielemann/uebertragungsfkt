@@ -144,7 +144,7 @@
                 </section>
 
 
-                <section class="canvas-section collapsible">
+                <section class="canvas-section collapsible collapsed">
                     <h2 class="collapsible-header">
                         <span class="collapse-icon">▼</span>
                         Schematische Darstellung
@@ -154,7 +154,7 @@
                     </div>
                 </section>
 
-                <section class="canvas-section collapsible">
+                <section class="canvas-section collapsible collapsed">
                     <h2 class="collapsible-header">
                         <span class="collapse-icon">▼</span>
                         Trajektorien
@@ -164,7 +164,7 @@
                     </div>
                 </section>
 
-                <section class="canvas-section collapsible">
+                <section class="canvas-section collapsible collapsed">
                     <h2 class="collapsible-header">
                         <span class="collapse-icon">▼</span>
                         Übertragungsfunktion
@@ -189,9 +189,33 @@
                                 <div id="complex-input-now-eq" class="equation-katex"></div>
                             </div>
 
+                            <!-- Row 4: Transient response for current time -->
+                            <div class="equation-item">
+                                <p><strong>Transiente Antwort für aktuelle Zeit:</strong></p>
+                                <div id="transient-response-now-eq" class="equation-katex"></div>
+                            </div>
+
+                            <!-- Row 5: Steady state response for current time -->
+                            <div class="equation-item">
+                                <p><strong>Stationäre Antwort für aktuelle Zeit:</strong></p>
+                                <div id="steady-state-response-now-eq" class="equation-katex"></div>
+                            </div>
+
                         </div>
                     </div>
                 </section>                
+
+                <section class="canvas-section collapsible collapsed">
+                    <h2 class="collapsible-header">
+                        <span class="collapse-icon">▼</span>
+                        Bode-Diagramm
+                    </h2>
+                    <div class="collapsible-content">
+                        <canvas id="bode-canvas"></canvas>
+                    </div>
+                </section>
+
+
             </main>
         </div>
 

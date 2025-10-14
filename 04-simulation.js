@@ -36,6 +36,9 @@ const state = {
     
     // Complex frequency parameters for analytic solution
     s_values: null,  // Will store array of {s, weight} for exponential basis functions
+    
+    // Transfer function data (computed from matrices and s_values)
+    transferFunctionData: null,  // Will store precomputed TF matrices and values
 };
 
 // ============================================================================
@@ -80,6 +83,55 @@ class SpringDamperMassSystem {
             C: math.matrix([[1, 0]]),
             D: math.matrix([[0]])
         };
+    }
+    
+    // Compute transfer function data for all s values
+    // This precomputes matrices and transfer functions that are parameter-dependent
+    // but time-independent, so they can be reused in both simulation and rendering
+    computeTransferFunctionData() {
+        // Get state-space matrices and s_values from state
+        const {A, B, C, D} = state.matrices;
+        const s_values = state.s_values;
+        
+        if (!s_values || !state.matrices) {
+            console.warn('Cannot compute transfer function data: matrices or s_values not initialized');
+            return null;
+        }
+        
+        // Precompute transfer functions and matrices for each s value
+        const I = math.identity(2);
+        const transferFunctionData = s_values.map(({s, weight}) => {
+            const sI = math.multiply(s, I);
+            const sI_minus_A = math.subtract(sI, A);
+            const inv_sI_A = math.inv(sI_minus_A);
+            
+            // Precompute (sI-A)^{-1}B (used in transient response)
+            const inv_sI_A_B = math.multiply(inv_sI_A, B);
+            
+            // Transfer function G(s) = C(sI-A)^{-1}B + D
+            const G_s = math.add(
+                math.multiply(math.multiply(C, inv_sI_A), B),
+                D
+            );
+            
+            // Extract scalar from 1x1 matrix
+            const G_s_scalar = math.subset(G_s, math.index(0, 0));
+            
+            return {
+                s: s,
+                weight: weight,
+                sI: sI,
+                sI_minus_A: sI_minus_A,
+                inv_sI_A: inv_sI_A,
+                inv_sI_A_B: inv_sI_A_B,
+                G_s: G_s_scalar
+            };
+        });
+        
+        // Store in state for access by both simulation and rendering
+        state.transferFunctionData = transferFunctionData;
+        
+        return transferFunctionData;
     }
     
     // State space dynamics: dx/dt = f(x, u, t)
@@ -144,32 +196,13 @@ class SpringDamperMassSystem {
         // Store initial state for transient response calculation
         const x0 = math.matrix([[this.x[0]], [this.x[1]]]);
         
-        // Get complex frequency parameters from state (computed in resimulate())
-        const s_values = state.s_values;
+        // Get precomputed transfer function data from state
+        const transferFunctionData = state.transferFunctionData;
         
-        // Precompute transfer functions and matrices for each s value
-        const I = math.identity(2);
-        const s_data = s_values.map(({s, weight}) => {
-            const sI = math.multiply(s, I);
-            const sI_minus_A = math.subtract(sI, A);
-            const inv_sI_A = math.inv(sI_minus_A);
-            
-            // Transfer function G(s) = C(sI-A)^{-1}B + D
-            const G_s = math.add(
-                math.multiply(math.multiply(C, inv_sI_A), B),
-                D
-            );
-            
-            // Extract scalar from 1x1 matrix
-            const G_s_scalar = math.subset(G_s, math.index(0, 0));
-            
-            return {
-                s: s,
-                weight: weight,
-                inv_sI_A: inv_sI_A,
-                G_s: G_s_scalar
-            };
-        });
+        if (!transferFunctionData) {
+            console.error('Transfer function data not computed. Call computeTransferFunctionData() first.');
+            return this.history;
+        }
         
         while (this.time < tMax) {
             // Current time
@@ -186,9 +219,9 @@ class SpringDamperMassSystem {
             let y_transient_total = math.complex(0, 0);
             let y_steady_total = math.complex(0, 0);
             
-            for (const {s, weight, inv_sI_A, G_s} of s_data) {
+            for (const {s, weight, inv_sI_A_B, G_s} of transferFunctionData) {
                 // Transient response: weight * C e^{At} [x_0 - (sI-A)^{-1}B]
-                const inv_sI_A_B = math.multiply(inv_sI_A, B);
+                // inv_sI_A_B is precomputed in transferFunctionData
                 const x0_diff = math.subtract(x0, inv_sI_A_B);
                 const y_trans = math.multiply(C, math.multiply(expAt, x0_diff));
                 const y_trans_scalar = math.subset(y_trans, math.index(0, 0));
@@ -769,20 +802,387 @@ class TrajectoryRenderer {
     }
 }
 
+
+class BodeRenderer {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.setupCanvas();
+        
+        // Frequency range for Bode plot (Hz)
+        this.fMin = 0.01;  // 0.01 Hz
+        this.fMax = 10;    // 10 Hz
+        this.numPoints = 200;
+        
+        // Initialize empty arrays (will be computed later when matrices are ready)
+        this.frequencies = [];
+        this.magnitudes = [];
+        this.magnitudesDB = [];
+        this.phases = [];
+    }
+    
+    setupCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = this.canvas.getBoundingClientRect();
+        
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+        
+        this.ctx.scale(dpr, dpr);
+        
+        this.width = rect.width;
+        this.height = rect.height;
+    }
+    
+    computeFrequencyResponse() {
+        // Get state-space matrices
+        const {A, B, C, D} = state.matrices;
+        
+        if (!A || !B || !C || !D) {
+            console.warn('State-space matrices not initialized');
+            return;
+        }
+        
+        // Generate frequency points (logarithmically spaced)
+        this.frequencies = [];
+        this.magnitudes = [];
+        this.magnitudesDB = [];
+        this.phases = [];
+        
+        const logFMin = Math.log10(this.fMin);
+        const logFMax = Math.log10(this.fMax);
+        
+        for (let i = 0; i < this.numPoints; i++) {
+            const logF = logFMin + (logFMax - logFMin) * i / (this.numPoints - 1);
+            const f = Math.pow(10, logF);
+            const omega = 2 * Math.PI * f;
+            
+            // Compute G(jω) = C(jωI - A)^(-1)B + D
+            //  - Dont reuse values from state.transferFunctionData because they assume specific s values
+            //  - Here we compute s across frequency range
+            const s = math.complex(0, omega);
+            const I = math.identity(2);
+            const sI = math.multiply(s, I);
+            const sI_minus_A = math.subtract(sI, A);
+            
+            try {
+                const inv_sI_A = math.inv(sI_minus_A);
+                const G_s = math.add(
+                    math.multiply(math.multiply(C, inv_sI_A), B),
+                    D
+                );
+                const G_s_scalar = math.subset(G_s, math.index(0, 0));
+                
+                // Magnitude and phase
+                const magnitude = math.abs(G_s_scalar);
+                const magnitudeDB = 20 * Math.log10(magnitude);
+                const phase = math.arg(G_s_scalar) * 180 / Math.PI; // Convert to degrees
+                
+                this.frequencies.push(f);
+                this.magnitudes.push(magnitude);
+                this.magnitudesDB.push(magnitudeDB);
+                this.phases.push(phase);
+            } catch (error) {
+                console.warn(`Could not compute transfer function at f=${f}`);
+            }
+        }
+    }
+    
+    render(currentFrequency) {
+        const ctx = this.ctx;
+        const w = this.width;
+        const h = this.height;
+        
+        // Clear
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        
+        if (this.frequencies.length === 0) {
+            this.computeFrequencyResponse();
+            if (this.frequencies.length === 0) return;
+        }
+        
+        // Layout: Two plots stacked vertically
+        const margin = { top: 50, right: 80, bottom: 60, left: 70 };
+        const plotWidth = w - margin.left - margin.right;
+        const plotHeight = (h - margin.top - margin.bottom - 40) / 2; // 40px gap between plots
+        
+        // Plot 1: Magnitude
+        const magY = margin.top;
+        this.renderMagnitudePlot(ctx, margin.left, magY, plotWidth, plotHeight, currentFrequency);
+        
+        // Plot 2: Phase
+        const phaseY = magY + plotHeight + 40;
+        this.renderPhasePlot(ctx, margin.left, phaseY, plotWidth, plotHeight, currentFrequency);
+    }
+    
+    renderMagnitudePlot(ctx, x, y, w, h, currentFrequency) {
+        // Background
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(x, y, w, h);
+        
+        // Find magnitude range
+        const magMin = Math.min(...this.magnitudes);
+        const magMax = Math.max(...this.magnitudes);
+        const magRange = magMax - magMin;
+        
+        const magDBMin = Math.min(...this.magnitudesDB);
+        const magDBMax = Math.max(...this.magnitudesDB);
+        const magDBRange = magDBMax - magDBMin;
+        
+        // Scales
+        const logFMin = Math.log10(this.fMin);
+        const logFMax = Math.log10(this.fMax);
+        
+        // Grid (logarithmic x-axis)
+        ctx.strokeStyle = '#d0d0d0';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const yPos = y + i * h / 5;
+            ctx.beginPath();
+            ctx.moveTo(x, yPos);
+            ctx.lineTo(x + w, yPos);
+            ctx.stroke();
+        }
+        
+        // Vertical grid lines (logarithmic decades)
+        for (let decade = Math.ceil(Math.log10(this.fMin)); decade <= Math.floor(Math.log10(this.fMax)); decade++) {
+            const f = Math.pow(10, decade);
+            const logF = Math.log10(f);
+            const xPos = x + (logF - logFMin) / (logFMax - logFMin) * w;
+            ctx.strokeStyle = '#c0c0c0';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(xPos, y);
+            ctx.lineTo(xPos, y + h);
+            ctx.stroke();
+        }
+        
+        // Plot magnitude curve (linear scale on left y-axis)
+        ctx.strokeStyle = '#e74c3c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < this.frequencies.length; i++) {
+            const logF = Math.log10(this.frequencies[i]);
+            const px = x + (logF - logFMin) / (logFMax - logFMin) * w;
+            const py = y + h - (this.magnitudes[i] - magMin) / (magRange + 0.01) * h;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        
+        // Current frequency marker
+        if (currentFrequency >= this.fMin && currentFrequency <= this.fMax) {
+            const logF = Math.log10(currentFrequency);
+            const markerX = x + (logF - logFMin) / (logFMax - logFMin) * w;
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(markerX, y);
+            ctx.lineTo(markerX, y + h);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        
+        // Axes
+        ctx.strokeStyle = '#2c3e50';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y + h);
+        ctx.lineTo(x + w, y + h);
+        ctx.stroke();
+        
+        // Labels - Title
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Magnitude', x + w / 2, y - 25);
+        
+        // Y-axis label (left - linear)
+        ctx.save();
+        ctx.translate(x - 45, y + h / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('|G(jω)|', 0, 0);
+        ctx.restore();
+        
+        // Y-axis label (right - dB)
+        ctx.save();
+        ctx.translate(x + w + 60, y + h / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('|G(jω)| (dB)', 0, 0);
+        ctx.restore();
+        
+        // Y-axis ticks (left - linear)
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= 4; i++) {
+            const val = magMin + (magMax - magMin) * i / 4;
+            const yPos = y + h - i * h / 4;
+            ctx.fillText(val.toFixed(2), x - 5, yPos + 3);
+        }
+        
+        // Y-axis ticks (right - dB)
+        ctx.textAlign = 'left';
+        for (let i = 0; i <= 4; i++) {
+            const val = magDBMin + (magDBMax - magDBMin) * i / 4;
+            const yPos = y + h - i * h / 4;
+            ctx.fillText(val.toFixed(1), x + w + 5, yPos + 3);
+        }
+        
+        // X-axis label (bottom - log)
+        ctx.textAlign = 'center';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('Frequenz f (Hz)', x + w / 2, y + h + 35);
+        
+        // X-axis ticks (logarithmic)
+        ctx.font = '10px sans-serif';
+        for (let decade = Math.ceil(Math.log10(this.fMin)); decade <= Math.floor(Math.log10(this.fMax)); decade++) {
+            const f = Math.pow(10, decade);
+            const logF = Math.log10(f);
+            const xPos = x + (logF - logFMin) / (logFMax - logFMin) * w;
+            ctx.fillText(f >= 1 ? f.toFixed(0) : f.toFixed(2), xPos, y + h + 20);
+        }
+    }
+    
+    renderPhasePlot(ctx, x, y, w, h, currentFrequency) {
+        // Background
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(x, y, w, h);
+        
+        // Find phase range
+        const phaseMin = Math.min(...this.phases);
+        const phaseMax = Math.max(...this.phases);
+        const phaseRange = phaseMax - phaseMin;
+        
+        // Scales
+        const logFMin = Math.log10(this.fMin);
+        const logFMax = Math.log10(this.fMax);
+        
+        // Grid
+        ctx.strokeStyle = '#d0d0d0';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const yPos = y + i * h / 5;
+            ctx.beginPath();
+            ctx.moveTo(x, yPos);
+            ctx.lineTo(x + w, yPos);
+            ctx.stroke();
+        }
+        
+        // Vertical grid lines (logarithmic decades)
+        for (let decade = Math.ceil(Math.log10(this.fMin)); decade <= Math.floor(Math.log10(this.fMax)); decade++) {
+            const f = Math.pow(10, decade);
+            const logF = Math.log10(f);
+            const xPos = x + (logF - logFMin) / (logFMax - logFMin) * w;
+            ctx.strokeStyle = '#c0c0c0';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(xPos, y);
+            ctx.lineTo(xPos, y + h);
+            ctx.stroke();
+        }
+        
+        // Plot phase curve
+        ctx.strokeStyle = '#9b59b6';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < this.frequencies.length; i++) {
+            const logF = Math.log10(this.frequencies[i]);
+            const px = x + (logF - logFMin) / (logFMax - logFMin) * w;
+            const py = y + h - (this.phases[i] - phaseMin) / (phaseRange + 0.01) * h;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        
+        // Current frequency marker
+        if (currentFrequency >= this.fMin && currentFrequency <= this.fMax) {
+            const logF = Math.log10(currentFrequency);
+            const markerX = x + (logF - logFMin) / (logFMax - logFMin) * w;
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(markerX, y);
+            ctx.lineTo(markerX, y + h);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        
+        // Axes
+        ctx.strokeStyle = '#2c3e50';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y + h);
+        ctx.lineTo(x + w, y + h);
+        ctx.stroke();
+        
+        // Labels - Title
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Phase', x + w / 2, y - 25);
+        
+        // Y-axis label
+        ctx.save();
+        ctx.translate(x - 45, y + h / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('∠G(jω) (°)', 0, 0);
+        ctx.restore();
+        
+        // Y-axis ticks
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= 4; i++) {
+            const val = phaseMin + (phaseMax - phaseMin) * i / 4;
+            const yPos = y + h - i * h / 4;
+            ctx.fillText(val.toFixed(1) + '°', x - 5, yPos + 3);
+        }
+        
+        // X-axis label (bottom - log)
+        ctx.textAlign = 'center';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('Frequenz f (Hz)', x + w / 2, y + h + 35);
+        
+        // X-axis ticks (logarithmic)
+        ctx.font = '10px sans-serif';
+        for (let decade = Math.ceil(Math.log10(this.fMin)); decade <= Math.floor(Math.log10(this.fMax)); decade++) {
+            const f = Math.pow(10, decade);
+            const logF = Math.log10(f);
+            const xPos = x + (logF - logFMin) / (logFMax - logFMin) * w;
+            ctx.fillText(f >= 1 ? f.toFixed(0) : f.toFixed(2), xPos, y + h + 20);
+        }
+    }
+}
+
 // ============================================================================
 // ANIMATION LOOP - RequestAnimationFrame
 // ============================================================================
 
-let schematicRenderer, trajectoryRenderer;
+let schematicRenderer, trajectoryRenderer, bodeRenderer;
 let animationFrameId = null;
 let lastTimestamp = 0;
 
 function initRenderers() {
     const schematicCanvas = document.getElementById('schematic-canvas');
     const trajectoryCanvas = document.getElementById('trajectory-canvas');
+    const bodeCanvas = document.getElementById('bode-canvas');
     
     schematicRenderer = new SchematicRenderer(schematicCanvas);
     trajectoryRenderer = new TrajectoryRenderer(trajectoryCanvas);
+    bodeRenderer = new BodeRenderer(bodeCanvas);
 }
 
 function animate(timestamp) {
@@ -817,6 +1217,7 @@ function animate(timestamp) {
 function render() {
     schematicRenderer.render(state.time);
     trajectoryRenderer.render(state.time);
+    bodeRenderer.render(state.f);
 }
 
 function startAnimation() {
@@ -929,14 +1330,14 @@ function renderEquationsStatic() {
             // Build list of s values
             const s_list = state.s_values.map(({s}, idx) => {
                 const s_str = formatComplex(s);
-                const superscript = (idx + 1) === 1 ? '' : '^\\star';
+                const superscript = (idx + 1) === 1 ? '_1' : '_2';
                 return `s${superscript} = ${s_str}`;
             }).join(', \\; ');
 
             // Build list of w values 
             const w_list = state.s_values.map(({weight}, idx) => {
                 const w_str = formatComplex(weight);
-                const superscript = (idx + 1) === 1 ? '' : '^\\star';
+                const superscript = (idx + 1) === 1 ? '_1' : '_2';
                 return `w${superscript} = ${w_str}`;
             }).join(', \\; ');            
             
@@ -949,7 +1350,7 @@ function renderEquationsStatic() {
             // Render input in terms of complex exponentials
             const omega = 2 * Math.PI * state.f;
             katex.render(
-                String.raw`u(t) = w \cdot e^{st} + w^\star \cdot e^{s^\star t} = A \sin(\omega t) \quad \text{mit} \quad \omega = 2\pi f = ${omega.toFixed(2)}`,
+                String.raw`u(t) = w_1 \cdot e^{s_1 t} + w_2 \cdot e^{s_2 t} = A \sin(\omega t) \quad \text{mit} \quad \omega = 2\pi f = ${omega.toFixed(2)}`,
                 document.getElementById('complex-input-eq'),
                 { displayMode: true, throwOnError: false }
             );
@@ -967,14 +1368,15 @@ function renderEquationsTimeDependent() {
         return;
     }
     
-    // Check if s_values are computed
-    if (!state.s_values) {
+    // Check if s_values and transferFunctionData are computed
+    if (!state.s_values || !state.transferFunctionData) {
         return;
     }
     
     try {
-        // Compute complex exponential terms at current time
         const t = state.time;
+        
+        // === Input equation ===
         const term1 = math.multiply(state.s_values[0].weight, math.exp(math.multiply(state.s_values[0].s, t)));
         const term2 = math.multiply(state.s_values[1].weight, math.exp(math.multiply(state.s_values[1].s, t)));
         const sum = math.add(term1, term2);
@@ -984,8 +1386,177 @@ function renderEquationsTimeDependent() {
         const sum_str = sum.re.toFixed(4);  // Should be real-valued
         
         katex.render(
-            String.raw`u(t) = w \cdot e^{st} + w^\star \cdot e^{s^\star t} = (${term1_str}) + (${term2_str}) = ${sum_str} \quad \text{bei} \quad t = ${state.time.toFixed(2)}`,
+            String.raw`u(t) = w_1 \cdot e^{s_1 t} + w_2 \cdot e^{s_2 t} = (${term1_str}) + (${term2_str}) = ${sum_str} \quad \text{bei} \quad t = ${state.time.toFixed(2)}`,
             document.getElementById('complex-input-now-eq'),
+            { displayMode: true, throwOnError: false }
+        );
+        
+        // === Transient response equation ===
+        // Get required matrices and data
+        const {A, B, C, D} = state.matrices;
+        const x0 = math.matrix([[0], [0]]);  // Initial state: [0, 0]
+        
+        // Compute matrix exponential e^{At}
+        const At = math.multiply(A, t);
+        const expAt = math.expm(At);
+        
+        // Sum contributions from both s values (conjugate pairs)
+        let y_transient_total = math.complex(0, 0);
+        
+        // For display: get data from first s value (will show symbolic for both)
+        const tfData0 = state.transferFunctionData[0];
+        const tfData1 = state.transferFunctionData[1];
+        
+        // Compute x0_diff for both s values
+        const x0_diff0 = math.subtract(x0, tfData0.inv_sI_A_B);
+        const x0_diff1 = math.subtract(x0, tfData1.inv_sI_A_B);
+        
+        for (const {s, weight, inv_sI_A_B} of state.transferFunctionData) {
+            const x0_diff = math.subtract(x0, inv_sI_A_B);
+            const y_trans = math.multiply(C, math.multiply(expAt, x0_diff));
+            const y_trans_scalar = math.subset(y_trans, math.index(0, 0));
+            const y_trans_weighted = math.multiply(weight, y_trans_scalar);
+            y_transient_total = math.add(y_transient_total, y_trans_weighted);
+        }
+        
+        const y_transient_real = math.re(y_transient_total);
+        
+        // Format matrices and vectors for LaTeX
+        const formatMatrix2x2 = (mat) => {
+            const m00 = math.subset(mat, math.index(0, 0));
+            const m01 = math.subset(mat, math.index(0, 1));
+            const m10 = math.subset(mat, math.index(1, 0));
+            const m11 = math.subset(mat, math.index(1, 1));
+            return `\\begin{bmatrix} ${m00.toFixed(3)} & ${m01.toFixed(3)} \\\\ ${m10.toFixed(3)} & ${m11.toFixed(3)} \\end{bmatrix}`;
+        };
+        
+        const formatVector2 = (vec) => {
+            const v0 = math.subset(vec, math.index(0, 0));
+            const v1 = math.subset(vec, math.index(1, 0));
+            return `\\begin{bmatrix} ${v0.toFixed(3)} \\\\ ${v1.toFixed(3)} \\end{bmatrix}`;
+        };
+        
+        const formatComplexVector2 = (vec) => {
+            const v0 = math.subset(vec, math.index(0, 0));
+            const v1 = math.subset(vec, math.index(1, 0));
+            return `\\begin{bmatrix} ${formatComplex(v0)} \\\\ ${formatComplex(v1)} \\end{bmatrix}`;
+        };
+        
+        const C_str = `\\begin{bmatrix} 1 & 0 \\end{bmatrix}`;
+        const expAt_str = formatMatrix2x2(expAt);
+        const x0_diff0_str = formatComplexVector2(x0_diff0);
+        const x0_diff1_str = formatComplexVector2(x0_diff1);
+        
+        // Compute intermediate result: C * e^{At} * x0_diff for each s value
+        const Ce_At_x0diff0 = math.multiply(C, math.multiply(expAt, x0_diff0));
+        const Ce_At_x0diff0_scalar = math.subset(Ce_At_x0diff0, math.index(0, 0));
+        const Ce_At_x0diff1 = math.multiply(C, math.multiply(expAt, x0_diff1));
+        const Ce_At_x0diff1_scalar = math.subset(Ce_At_x0diff1, math.index(0, 0));
+        
+        const w0_str = formatComplex(tfData0.weight);
+        const w1_str = formatComplex(tfData1.weight);
+        const Ce_At_x0diff0_str = formatComplex(Ce_At_x0diff0_scalar);
+        const Ce_At_x0diff1_str = formatComplex(Ce_At_x0diff1_scalar);
+        
+        // Weighted contributions
+        const weighted0 = math.multiply(tfData0.weight, Ce_At_x0diff0_scalar);
+        const weighted1 = math.multiply(tfData1.weight, Ce_At_x0diff1_scalar);
+        const weighted0_str = formatComplex(weighted0);
+        const weighted1_str = formatComplex(weighted1);
+        
+        katex.render(
+            String.raw`\begin{aligned}
+            y_{trans}(t) &= \sum_{i=1}^2 w_i C e^{At} \left[ x_0 - (s_i I-A)^{-1} B \right] \\
+            &= w_1 \cdot \underbrace{${C_str} ${expAt_str}}_{C e^{At}} \underbrace{ ${x0_diff0_str} }_{x_0 - (s_1 I-A)^{-1} B}  + w_2 \cdot \underbrace{${C_str} ${expAt_str}}_{C e^{At}} \underbrace{ ${x0_diff1_str} }_{x_0 - (s_2 I-A)^{-1} B} \\
+            &= (${w0_str}) \cdot (${Ce_At_x0diff0_str}) + (${w1_str}) \cdot (${Ce_At_x0diff1_str}) \\
+            &= (${weighted0_str}) + (${weighted1_str}) = ${y_transient_real.toFixed(4)} \quad \text{bei} \quad t = ${t.toFixed(2)}
+            \end{aligned}`,
+            document.getElementById('transient-response-now-eq'),
+            { displayMode: true, throwOnError: false }
+        );
+        
+        // === Steady-state response equation ===
+        let y_steady_total = math.complex(0, 0);
+        
+        for (const {s, weight, G_s} of state.transferFunctionData) {
+            const est = math.exp(math.multiply(s, t));
+            const y_steady_weighted = math.multiply(math.multiply(weight, G_s), est);
+            y_steady_total = math.add(y_steady_total, y_steady_weighted);
+        }
+        
+        const y_steady_real = math.re(y_steady_total);
+        
+        // Format matrices for steady-state equation display
+        // Helper to format number (real or complex)
+        const formatNumber = (val) => {
+            if (typeof val === 'number') {
+                return val.toFixed(2);
+            }
+            if (val && typeof val === 'object' && ('re' in val || 'im' in val)) {
+                return formatComplex(val);
+            }
+            return formatComplex(math.complex(val));
+        };
+        
+        // Helper to format complex 2x2 matrix
+        const formatComplexMatrix2x2 = (mat) => {
+            const m00 = math.subset(mat, math.index(0, 0));
+            const m01 = math.subset(mat, math.index(0, 1));
+            const m10 = math.subset(mat, math.index(1, 0));
+            const m11 = math.subset(mat, math.index(1, 1));
+            return `\\begin{bmatrix} ${formatNumber(m00)} & ${formatNumber(m01)} \\\\ ${formatNumber(m10)} & ${formatNumber(m11)} \\end{bmatrix}`;
+        };
+        
+        // Helper to format complex vector
+        const formatComplexVector2_steady = (vec) => {
+            const v0 = math.subset(vec, math.index(0, 0));
+            const v1 = math.subset(vec, math.index(1, 0));
+            return `\\begin{bmatrix} ${formatNumber(v0)} \\\\ ${formatNumber(v1)} \\end{bmatrix}`;
+        };
+        
+        // Get matrices C, B, and D
+        const C_str_steady = `\\begin{bmatrix} 1 & 0 \\end{bmatrix}`;
+        const B_str_steady = formatComplexVector2_steady(B);
+        const D_str_steady = formatNumber(math.subset(D, math.index(0, 0)));
+        
+        // Get inv_sI_A matrices for both s values
+        const inv_sI_A_0_str = formatComplexMatrix2x2(tfData0.inv_sI_A);
+        const inv_sI_A_1_str = formatComplexMatrix2x2(tfData1.inv_sI_A);
+        
+        // Get G(s) values
+        const G_s0 = tfData0.G_s;
+        const G_s1 = tfData1.G_s;
+        const G_s0_str = formatComplex(G_s0);
+        const G_s1_str = formatComplex(G_s1);
+        
+        // Compute e^{st}
+        const est0 = math.exp(math.multiply(tfData0.s, t));
+        const est1 = math.exp(math.multiply(tfData1.s, t));
+        const est0_str = formatComplex(est0);
+        const est1_str = formatComplex(est1);
+        
+        // Compute G(s) * e^{st}
+        const G_est0 = math.multiply(G_s0, est0);
+        const G_est1 = math.multiply(G_s1, est1);
+        const G_est0_str = formatComplex(G_est0);
+        const G_est1_str = formatComplex(G_est1);
+        
+        // Weighted contributions
+        const steady_weighted0 = math.multiply(tfData0.weight, G_est0);
+        const steady_weighted1 = math.multiply(tfData1.weight, G_est1);
+        const steady_weighted0_str = formatComplex(steady_weighted0);
+        const steady_weighted1_str = formatComplex(steady_weighted1);
+        
+        katex.render(
+            String.raw`\begin{aligned}
+            y_{stat}(t) &= \sum_{i=1}^2 w_i \left[ C (s_i I-A)^{-1} B + D \right] e^{s_i t} = \sum_{i=1}^2 w_i G(s_i) e^{s_i t} \\
+            &= w_1 \cdot \left[ \underbrace{${C_str_steady} ${inv_sI_A_0_str} ${B_str_steady}}_{C (s_1 I-A)^{-1} B} + ${D_str_steady} \right] \cdot \underbrace{(${est0_str})}_{e^{s_1 t}} + \\
+            &  \quad \quad \quad + w_2 \cdot \left[ \underbrace{${C_str_steady} ${inv_sI_A_1_str} ${B_str_steady}}_{C (s_2 I-A)^{-1} B} + ${D_str_steady} \right] \cdot \underbrace{(${est1_str})}_{e^{s_2 t}} \\
+            &= w_1 \cdot (${G_s0_str}) \cdot (${est0_str}) + w_2 \cdot (${G_s1_str}) \cdot (${est1_str}) \\
+            &= (${w0_str}) \cdot (${G_est0_str}) + (${w1_str}) \cdot (${G_est1_str}) \\
+            &= (${steady_weighted0_str}) + (${steady_weighted1_str}) = ${y_steady_real.toFixed(4)} \quad \text{bei} \quad t = ${t.toFixed(2)}
+            \end{aligned}`,
+            document.getElementById('steady-state-response-now-eq'),
             { displayMode: true, throwOnError: false }
         );
         
@@ -1013,6 +1584,15 @@ function resimulate() {
         { s: math.complex(0, omega),   weight: math.complex(0, -0.5 * A) },  // s = +jω, weight = -jA/2
         { s: math.complex(0, -omega),  weight: math.complex(0, 0.5 * A) }    // s = -jω, weight = +jA/2
     ];
+    
+    // Compute transfer function data (parameter-dependent but time-independent)
+    // This makes the data available for both simulation and equation rendering
+    system.computeTransferFunctionData();
+    
+    // Recompute Bode diagram with updated parameters
+    if (bodeRenderer) {
+        bodeRenderer.computeFrequencyResponse();
+    }
     
     system.simulateTrajectory(state.maxTime);
     renderEquations();  // Update equations with new parameter values
@@ -1146,6 +1726,7 @@ function setupEventListeners() {
         resizeTimeout = setTimeout(() => {
             schematicRenderer.setupCanvas();
             trajectoryRenderer.setupCanvas();
+            bodeRenderer.setupCanvas();
             render();
         }, 200);
     });
