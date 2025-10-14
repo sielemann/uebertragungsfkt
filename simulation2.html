@@ -16,7 +16,7 @@
 <body>
     <div id="main-container">
         <header>
-            <h1>Feder-Masse Schwinger nach Lunze 1 Beispiel 4.2/6.1</h1>
+            <h1>Feder-Masse Schwinger nach Lunze 1 Beispiel 6.4</h1>
             <!-- <p class="subtitle">Übertragungsfunktionen</p> -->
         </header>
 
@@ -27,24 +27,45 @@
                     <h2>Parameter</h2>
                     
                     <div class="slider-group">
-                        <label for="mass-slider">
-                            Masse m: <span id="mass-value">0.2</span> kg
+                        <label for="m0-slider">
+                            Untere Masse m₀: <span id="m0-value">0.5</span> kg
                         </label>
-                        <input type="range" id="mass-slider" min="0.1" max="1.0" step="0.05" value="0.2">
+                        <input type="range" id="m0-slider" min="0.1" max="2.0" step="0.05" value="0.1">
                     </div>
 
                     <div class="slider-group">
-                        <label for="spring-slider">
-                            Federkonstante c: <span id="spring-value">1.0</span> N/m
+                        <label for="m1-slider">
+                            Mittlere Masse m₁: <span id="m1-value">0.3</span> kg
                         </label>
-                        <input type="range" id="spring-slider" min="0.1" max="5.0" step="0.1" value="1.0">
+                        <input type="range" id="m1-slider" min="0.1" max="2.0" step="0.05" value="0.2">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="c0-slider">
+                            Feder c₀ (rechts): <span id="c0-value">2.0</span> N/m
+                        </label>
+                        <input type="range" id="c0-slider" min="0.1" max="5.0" step="0.1" value="2.6">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="c1-slider">
+                            Feder c₁ (links oben): <span id="c1-value">1.5</span> N/m
+                        </label>
+                        <input type="range" id="c1-slider" min="0.1" max="5.0" step="0.1" value="3.6">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="c2-slider">
+                            Feder c₂ (links unten): <span id="c2-value">1.0</span> N/m
+                        </label>
+                        <input type="range" id="c2-slider" min="0.1" max="5.0" step="0.1" value="1.8">
                     </div>
 
                     <div class="slider-group">
                         <label for="damping-slider">
-                            Dämpfungskonstante d: <span id="damping-value">0.8</span> Ns/m
+                            Dämpfer d (rechts): <span id="damping-value">0.8</span> Ns/m
                         </label>
-                        <input type="range" id="damping-slider" min="0.1" max="2.0" step="0.1" value="0.8">
+                        <input type="range" id="damping-slider" min="0.1" max="2.0" step="0.1" value="0.7">
                     </div>
 
                     <h2>Eingang</h2>
@@ -109,11 +130,15 @@
                     </h2>
                     <div class="collapsible-content">
                         <p style="margin-bottom: 15px; line-height: 1.6;">
-                            In der Ebene wird das Ende einer Feder entsprechend Eingang \(u\) bewegt. 
-                            Die Positionen der beiden Enden der Feder werden durch \(x_1\) und \(x_2\) beschrieben 
-                            (also \(x_1 = u\)).
-                            Am anderen Ende der Feder \(x_2\) befindet sich ein Dämpfer, an dem eine Masse befestigt ist. 
-                            Die Position dieser Masse wird durch \(x_3 = y\) beschrieben.
+                            In der Ebene werden zwei Komponentenstränge parallel entsprechend Eingang \(u\) bewegt. 
+                            Im linken Strang befindet sich eine Feder \(c_1\), die an der Masse \(m_1\) angeordnet ist. Daran 
+                            hängt eine weitere Feder \(c_2\), die an einer gemeinsamen Masse \(m_0\) angeordnet ist. 
+                            Im rechten Strang befindet sich eine Feder \(c_0\) sowie ein Dämpfer \(d\), der wieder mit der 
+                            gemeinsamen Masse \(m_0\) verbunden ist. 
+                            Die Positionen der beiden Massen \(m_1\) und \(m_0\) werden durch \(x_1\) und \(x_0\) beschrieben.
+                            Die Position dieser gemeinsamen Masse \(m_0\) ist der Ausgang \(y = x_0\) beschrieben.
+                            Als Zustände tauchen die Positionen \(x_1\) und \(x_0\) sowie deren Geschwindigkeiten auf. Somit 
+                            ergibt sich ein Zustandsraummodell mit vier Zuständen.
                         </p>
                         <div class="equations">
                             <!-- Row 1: State vector and Input -->
@@ -128,16 +153,10 @@
                                 </div>
                             </div>
                             
-                            <!-- Row 2: System matrix and Differential equation -->
-                            <div class="equation-grid">
-                                <div class="equation-item">
-                                    <p><strong>Zustandsraummodell:</strong></p>
-                                    <div id="system-matrix-eq" class="equation-katex"></div>
-                                </div>
-                                <div class="equation-item">
-                                    <p><strong>Differentialgleichung:</strong></p>
-                                    <div id="diff-eq-scalar" class="equation-katex"></div>
-                                </div>
+                            <!-- Row 2: System matrix (full width) -->
+                            <div class="equation-item" style="width: 100%;">
+                                <p><strong>Zustandsraummodell:</strong></p>
+                                <div id="system-matrix-eq" class="equation-katex"></div>
                             </div>
                         </div>
                     </div>
@@ -224,6 +243,6 @@
         </footer>
     </div>
 
-    <script src="simulation1.js"></script>
+    <script src="simulation2.js"></script>
 </body>
 </html>
