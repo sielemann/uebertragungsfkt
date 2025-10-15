@@ -14,6 +14,8 @@ format:
     margin: 0.1
     auto-stretch: true
     scrollable: true
+    slide-number: true
+    show-notes: false
     css: |
       .smaller {
         font-size: 0.8em;
