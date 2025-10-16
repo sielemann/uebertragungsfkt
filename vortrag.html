@@ -583,7 +583,7 @@ flowchart TD
 <section id="exponentielle-eingänge-2" class="slide level2">
 <h2>Exponentielle Eingänge 2</h2>
 <!-- KJA Fig 8.2 -->
-<div id="bd99d87e" class="cell" data-fig-height="6" data-fig-width="10" data-execution_count="1">
+<div id="f5ed2f26" class="cell" data-fig-height="6" data-fig-width="10" data-execution_count="1">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -744,7 +744,7 @@ Allgemeiner:
 <ul>
 <li><p>Bei vorgegebener Übertragungsfunktion <span class="math inline">\(G(s)\)</span> gibt es keine eindeutig definierte Zustandsraumdarstellung</p></li>
 <li><p>Es ist naheliegend eine Zustandsraumdarstellung mit minimaler Anzahl an Zuständen zu wählen (<em>minimale Realisierung</em>). Solch eine Realisierung ist immer steuerbar und beobachtbar.</p></li>
-<li><p>Wenn sich die Übertragunsfunktion in Partialbrüchen folgender Form schreiben lässt <span class="math inline">\(G(s) = \frac{p_1}{s-\lambda_1} + \frac{p_2}{s-\lambda_2} + \dots \frac{p_n}{s-\lambda_n} + d\)</span></p>
+<li><p>Wenn sich die Übertragungsfunktion in Partialbrüchen folgender Form schreiben lässt <span class="math inline">\(G(s) = \frac{p_1}{s-\lambda_1} + \frac{p_2}{s-\lambda_2} + \dots \frac{p_n}{s-\lambda_n} + d\)</span></p>
 <p>dann ist eine Kanonische Form</p>
 <p><span class="math inline">\(A = \begin{bmatrix}
 \lambda_1 &amp;        &amp;      \\
@@ -817,18 +817,18 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <li>Transformiert Eingang <span class="math inline">\(u(t)\)</span> aus dem Zeitbereich in den Frequenzbereich <span class="math inline">\(U(s)\)</span> (dargestellt in Verstärkung und Phasenverschiebung wie bisher mit komplexen Zahlen)</li>
 <li>Diese Transformation schreiben wir als <span class="math inline">\(\mathcal{L}\{u\} = U\)</span></li>
 <li>Die Transformation ist definiert durch <span class="math inline">\(U(s) := \int_{0}^{\infty} u(t) e^{-s t} dt\)</span> <!-- KJA eq. 8.22, Lunze Gl. 6.45 --></li>
-<li>Bedingungen: <em>Dirichlet-Bedingung</em>, <span class="math inline">\(\int_{-\infty}^{\infty} \vert u(t) \vert e^{- \delta t} dt &lt; \infty\)</span>, d.h., <span class="math inline">\(u(t)\)</span> dar nicht schneller als exponentiell wachsen (nicht <span class="math inline">\(t^t\)</span>) und <span class="math inline">\(u(t)\)</span> darf nicht unendlich viele Diskontinuitäten enthalten.</li>
+<li>Bedingungen: <em>Dirichlet-Bedingung</em>, <span class="math inline">\(\int_{-\infty}^{\infty} \vert u(t) \vert e^{- \delta t} dt &lt; \infty\)</span>, d.h., <span class="math inline">\(u(t)\)</span> darf nicht schneller als exponentiell wachsen (nicht <span class="math inline">\(t^t\)</span>) und <span class="math inline">\(u(t)\)</span> darf nicht unendlich viele Diskontinuitäten enthalten.</li>
 </ul>
 </section>
-<section id="laplace-transformation-2" class="slide level2">
+<section id="laplace-transformation-2" class="slide level2 scrollable">
 <h2>Laplace-Transformation 2</h2>
 <ul>
 <li>Die inverse Laplace-Transformation transformiert aus dem Frequenzbereich <span class="math inline">\(U(s)\)</span> in den Zeitbereich</li>
 <li>Diese Transformation schreiben wir als <span class="math inline">\(\mathcal{L^{-1}}\{U\} = u\)</span></li>
-<li>Die inverse Transformation ist definiert durch <span class="math inline">\(u(t) := \frac{1}{2\pi j} \lim_{\omega \to \infty} \int_{\gamma - j\omega}^{\gamma + j\omega} U(s) e^{-s t} ds\)</span> <!-- Lunze Gl. 6.49 --></li>
+<li>Die inverse Transformation ist definiert<sup>1</sup> durch <span class="math inline">\(u(t) := \frac{1}{2\pi j} \lim_{\omega \to \infty} \int_{\gamma - j\omega}^{\gamma + j\omega} U(s) e^{-s t} ds\)</span> <!-- Lunze Gl. 6.49 --></li>
 <li>Sie müssen diese Laplace-Integrale nicht selber lösen sondern den praktischen Umgang mit Zeit- und Frequenzbereich verstehen.</li>
 </ul>
-</section>
+<aside><ol class="aside-footnotes"><li id="fn2"><p>Variable <span class="math inline">\(\gamma\)</span> ist eine reelle Zahl, die größer als der größte Realteil der Nullstellen von <span class="math inline">\(U(s)\)</span> ist.</p></li></ol></aside></section>
 <section id="zusammenfassung-laplace-transformation" class="slide level2">
 <h2>Zusammenfassung Laplace-Transformation</h2>
 <ul>
@@ -848,7 +848,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <div class="columns">
 <div class="column" style="width:33%;">
 <p><strong>Reihenschaltung</strong></p>
-<div id="0d8f4540" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="2">
+<div id="f87fa0bc" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -860,7 +860,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <p><span class="math display">\[G_{yu} = G_2 \cdot G_1\]</span></p>
 </div><div class="column" style="width:33%;">
 <p><strong>Parallelschaltung</strong></p>
-<div id="0655ddc6" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="3">
+<div id="671b0b54" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -872,7 +872,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <p><span class="math display">\[G_{yu} = G_1 + G_2\]</span></p>
 </div><div class="column" style="width:33%;">
 <p><strong>Rückkopplung (Feedback)</strong></p>
-<div id="76b86086" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="4">
+<div id="c7e36ec0" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -917,7 +917,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <li>Unten: <span class="math inline">\(\angle G(j\omega)_{deg}\)</span> als Funktion von <span class="math inline">\(\log_{10} \omega\)</span></li>
 </ul></li>
 </ul>
-<div id="a200230f" class="cell" data-fig-height="5" data-fig-width="8" data-execution_count="5">
+<div id="c8c86d71" class="cell" data-fig-height="5" data-fig-width="8" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -971,7 +971,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <li>Von einem Zeiger mit Länge <span class="math inline">\(\vert G(j\omega) \vert\)</span> und Winkel <span class="math inline">\(\angle G(j\omega)\)</span> gezeichnete Ortskurve</li>
 </ul></li>
 </ul>
-<div id="2560ce10" class="cell" data-fig-height="6" data-fig-width="6" data-execution_count="6">
+<div id="bf0330e8" class="cell" data-fig-height="6" data-fig-width="6" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -984,7 +984,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <section id="beispiele-von-übertragungsfunktionen" class="slide level2">
 <h2>Beispiele von Übertragungsfunktionen</h2>
 <!-- Lunze Abb. 6.54 -->
-<div id="8c0c20ee" class="cell" data-fig-height="8" data-fig-width="12" data-execution_count="7">
+<div id="84b58dd8" class="cell" data-fig-height="8" data-fig-width="12" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure>

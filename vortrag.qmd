@@ -521,7 +521,7 @@ plt.show()
 
  - Bei vorgegebener Übertragungsfunktion $G(s)$ gibt es keine eindeutig definierte Zustandsraumdarstellung
  - Es ist naheliegend eine Zustandsraumdarstellung mit minimaler Anzahl an Zuständen zu wählen (*minimale Realisierung*). Solch eine Realisierung ist immer steuerbar und beobachtbar.
- - Wenn sich die Übertragunsfunktion in Partialbrüchen folgender Form schreiben lässt 
+ - Wenn sich die Übertragungsfunktion in Partialbrüchen folgender Form schreiben lässt 
    $G(s) = \frac{p_1}{s-\lambda_1} + \frac{p_2}{s-\lambda_2} + \dots \frac{p_n}{s-\lambda_n} + d$ 
 
    dann ist eine Kanonische Form
@@ -593,13 +593,13 @@ Fragen
  - Diese Transformation schreiben wir als $\mathcal{L}\{u\} = U$
  - Die Transformation ist definiert durch
    $U(s) := \int_{0}^{\infty} u(t) e^{-s t} dt$ <!-- KJA eq. 8.22, Lunze Gl. 6.45 -->
- - Bedingungen: *Dirichlet-Bedingung*, $\int_{-\infty}^{\infty} \vert u(t) \vert e^{- \delta t} dt < \infty$, d.h., $u(t)$ dar nicht schneller als exponentiell wachsen (nicht $t^t$) und $u(t)$ darf nicht unendlich viele Diskontinuitäten enthalten.
+ - Bedingungen: *Dirichlet-Bedingung*, $\int_{-\infty}^{\infty} \vert u(t) \vert e^{- \delta t} dt < \infty$, d.h., $u(t)$ darf nicht schneller als exponentiell wachsen (nicht $t^t$) und $u(t)$ darf nicht unendlich viele Diskontinuitäten enthalten.
 
 ## Laplace-Transformation 2
 
  - Die inverse Laplace-Transformation transformiert aus dem Frequenzbereich $U(s)$ in den Zeitbereich 
  - Diese Transformation schreiben wir als $\mathcal{L^{-1}}\{U\} = u$
- - Die inverse Transformation ist definiert durch
+ - Die inverse Transformation ist definiert^[Variable $\gamma$ ist eine reelle Zahl, die größer als der größte Realteil der Nullstellen von $U(s)$ ist.] durch
    $u(t) := \frac{1}{2\pi j} \lim_{\omega \to \infty} \int_{\gamma - j\omega}^{\gamma + j\omega} U(s) e^{-s t} ds$ <!-- Lunze Gl. 6.49 -->
  - Sie müssen diese Laplace-Integrale nicht selber lösen sondern den praktischen Umgang mit Zeit- und Frequenzbereich verstehen.
 
