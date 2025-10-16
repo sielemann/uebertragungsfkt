@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.8.24">
 
   <meta name="author" content="Michael Sielemann">
-  <meta name="dcterms.date" content="2025-09-19">
+  <meta name="dcterms.date" content="2025-10-17">
   <title>Übertragungsfunktionen</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -148,7 +148,7 @@ Michael Sielemann
 </div>
 </div>
 
-  <p class="date">2025-09-19</p>
+  <p class="date">2025-10-17</p>
 </section>
 <section id="wiederholung-1" class="slide level2">
 <h2>Wiederholung 1</h2>
@@ -347,8 +347,8 @@ y = h(x,u)
           display:block!important;
       }</style></aside>
 </section>
-<section id="beispiel-1" class="slide level2 unnumbered">
-<h2>Beispiel 1</h2>
+<section id="beispiel" class="slide level2">
+<h2>Beispiel</h2>
 <div style="text-align: center; padding: 50px;">
 <p><a href="simulation1.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;"> Feder-Masse-Schwinger 1 in neuem Tab öffnen </a></p>
 </div>
@@ -366,14 +366,16 @@ y = h(x,u)
           display:block!important;
       }</style></aside>
 </section>
-<section id="lernziele-heute" class="slide level2">
-<h2>Lernziele heute</h2>
-<ul>
-<li>Ausgang für exponentielle Eingänge</li>
-<li>Übertragungsfunktion</li>
-<li>Umrechnung von Zustandsraum zu Übertragungsfunktion und umgekehrt</li>
-<li>Laplace-Transformation und umgekehrte Laplace-Transformation</li>
-</ul>
+<section id="lernziele-heute-und-überblick" class="slide level2 scrollable">
+<h2>Lernziele heute und Überblick</h2>
+<ol type="1">
+<li>Wiederholung</li>
+<li><strong>Motivation</strong></li>
+<li>Theorie Teil 1</li>
+<li>Theorie Teil 2</li>
+<li>Rückblick</li>
+<li>Quellen</li>
+</ol>
 </section>
 <section id="motivation" class="slide level2">
 <h2>Motivation</h2>
@@ -514,8 +516,26 @@ flowchart TD
 </div>
 </div>
 </section>
-<section id="lösung-der-faltungsgleichung" class="slide level2">
-<h2>Lösung der Faltungsgleichung</h2>
+<section id="lernziele-heute-und-überblick-1" class="slide level2 scrollable">
+<h2>Lernziele heute und Überblick</h2>
+<ol type="1">
+<li>Wiederholung</li>
+<li>Motivation</li>
+<li><strong>Theorie Teil 1</strong>
+<ul>
+<li>Ansatz zur Lösung der Faltungsgleichung</li>
+<li>Exponentielle Eingänge und Berechnung der Ausgänge</li>
+<li>Übertragungsfunktion und Analyse im Frequenzbereich</li>
+<li>Superposition</li>
+<li>Beispiel</li>
+</ul></li>
+<li>Theorie Teil 2</li>
+<li>Rückblick</li>
+<li>Quellen</li>
+</ol>
+</section>
+<section id="ansatz-zur-lösung-der-faltungsgleichung" class="slide level2">
+<h2>Ansatz zur Lösung der Faltungsgleichung</h2>
 <ul>
 <li>Faltungsgleichung beschreibt Ausgang vollständig
 <ul>
@@ -563,7 +583,7 @@ flowchart TD
 <section id="exponentielle-eingänge-2" class="slide level2">
 <h2>Exponentielle Eingänge 2</h2>
 <!-- KJA Fig 8.2 -->
-<div id="7efa96bb" class="cell" data-fig-height="6" data-fig-width="10" data-execution_count="1">
+<div id="bd99d87e" class="cell" data-fig-height="6" data-fig-width="10" data-execution_count="1">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -657,9 +677,24 @@ Allgemeiner:
 </ul></li>
 </ul>
 <aside><ol class="aside-footnotes"><li id="fn1"><p>Viele periodische und nichtperiodische Signale, Sprung, Dirac-Impuls aber keine Signale, die schneller als exponentiell wachsen wie <span class="math inline">\(t^t\)</span> oder unendlich viele Diskontinuitäten enthalten. Formale Definition folgt später.</p></li></ol></aside></section>
-<section id="beispiel-2" class="slide level2 unnumbered">
-<h2>Beispiel 2</h2>
-<div style="text-align: center; padding: 50px;">
+<section id="lernziele-heute-und-überblick-2" class="slide level2 scrollable">
+<h2>Lernziele heute und Überblick</h2>
+<ol type="1">
+<li>Wiederholung</li>
+<li>Motivation</li>
+<li><strong>Theorie Teil 1</strong>
+<ul>
+<li>Ansatz zur Lösung der Faltungsgleichung</li>
+<li>Exponentielle Eingänge und Berechnung der Ausgänge</li>
+<li>Übertragungsfunktion und Analyse im Frequenzbereich</li>
+<li>Superposition</li>
+<li><strong>Beispiel</strong></li>
+</ul></li>
+<li>Theorie Teil 2</li>
+<li>Rückblick</li>
+<li>Quellen</li>
+</ol>
+<div style="position: absolute; top: 400px; right: 30px;">
 <p><a href="simulation1.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;"> Feder-Masse-Schwinger 1 in neuem Tab öffnen </a></p>
 </div>
 <aside class="notes">
@@ -675,6 +710,26 @@ Allgemeiner:
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section id="lernziele-heute-und-überblick-3" class="slide level2 scrollable">
+<h2>Lernziele heute und Überblick</h2>
+<ol type="1">
+<li>Wiederholung</li>
+<li>Motivation</li>
+<li>Theorie Teil 1</li>
+<li><strong>Theorie Teil 2</strong>
+<ul>
+<li>Konvertierung zwischen Zustandsraum und Übertragungsfunktion</li>
+<li>Zerlegung von Eingängen in Grundformen</li>
+<li>Laplace-Transformation und umgekehrte Laplace-Transformation</li>
+<li>Berechnung von Ausgängen mit Übertragungsfunktionen</li>
+<li>Darstellung von Übertragungsfunktionen</li>
+<li>Nullstellen und Pole</li>
+<li>Beispiel</li>
+</ul></li>
+<li>Rückblick</li>
+<li>Quellen</li>
+</ol>
 </section>
 <section id="konvertierung-zustandsraum-zu-übertragungsfunktion" class="slide level2">
 <h2>Konvertierung Zustandsraum zu Übertragungsfunktion</h2>
@@ -707,7 +762,7 @@ B = \begin{bmatrix}
 D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 </ul>
 <aside class="notes">
-<p>Fragen - Kann jemand erkennen warum die Konvertierung von Übertragungsfunktion zu Zustandsraum nicht eindeutig ist? u=Ax + Bu -&gt; Die Verstärkung von Eingängen im Vergleich zu Zuständen ist nicht eindeutig für stationäre Antwort. Wir wählen die beiden Werte gleich als Wurzeln der Zähler der Partialbrüche (Vergleich zu der vorherigen Folie).</p>
+<p>Fragen - Kann jemand erkennen warum die Konvertierung von Übertragungsfunktion zu Zustandsraum nicht eindeutig ist? x_dot=Ax + Bu -&gt; Die Verstärkung von Eingängen im Vergleich zu Zuständen ist nicht eindeutig für stationäre Antwort. Wir wählen die beiden Werte gleich als Wurzeln der Zähler der Partialbrüche (Vergleich zu der vorherigen Folie).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -768,14 +823,14 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <section id="laplace-transformation-2" class="slide level2">
 <h2>Laplace-Transformation 2</h2>
 <ul>
-<li>Die inverste Laplace-Transformation transformiert aus dem Frequenzbereich <span class="math inline">\(U(s)\)</span> in den Zeitbereich</li>
+<li>Die inverse Laplace-Transformation transformiert aus dem Frequenzbereich <span class="math inline">\(U(s)\)</span> in den Zeitbereich</li>
 <li>Diese Transformation schreiben wir als <span class="math inline">\(\mathcal{L^{-1}}\{U\} = u\)</span></li>
 <li>Die inverse Transformation ist definiert durch <span class="math inline">\(u(t) := \frac{1}{2\pi j} \lim_{\omega \to \infty} \int_{\gamma - j\omega}^{\gamma + j\omega} U(s) e^{-s t} ds\)</span> <!-- Lunze Gl. 6.49 --></li>
 <li>Sie müssen diese Laplace-Integrale nicht selber lösen sondern den praktischen Umgang mit Zeit- und Frequenzbereich verstehen.</li>
 </ul>
 </section>
-<section id="zwischenzusammenfassung" class="slide level2">
-<h2>Zwischenzusammenfassung</h2>
+<section id="zusammenfassung-laplace-transformation" class="slide level2">
+<h2>Zusammenfassung Laplace-Transformation</h2>
 <ul>
 <li><p>Wir finden die (stationären) Ausgänge im Zeitbereich (wenn benötigt) über</p>
 <p><span class="math inline">\(y(t) = \frac{1}{2\pi j} \lim_{\omega \to \infty} \int_{\gamma - j\omega}^{\gamma + j\omega} G(s) U(s) e^{-s t} ds\)</span></p>
@@ -793,7 +848,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <div class="columns">
 <div class="column" style="width:33%;">
 <p><strong>Reihenschaltung</strong></p>
-<div id="70ee5c4b" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="2">
+<div id="0d8f4540" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -805,7 +860,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <p><span class="math display">\[G_{yu} = G_2 \cdot G_1\]</span></p>
 </div><div class="column" style="width:33%;">
 <p><strong>Parallelschaltung</strong></p>
-<div id="f8a5eb63" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="3">
+<div id="0655ddc6" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -817,7 +872,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <p><span class="math display">\[G_{yu} = G_1 + G_2\]</span></p>
 </div><div class="column" style="width:33%;">
 <p><strong>Rückkopplung (Feedback)</strong></p>
-<div id="4978f171" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="4">
+<div id="76b86086" class="cell" data-fig-height="1.5" data-fig-width="3" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -851,8 +906,8 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 </ul></li>
 </ul>
 </section>
-<section id="darstellungen-der-übertragunsfunktion-1" class="slide level2">
-<h2>Darstellungen der Übertragunsfunktion 1</h2>
+<section id="darstellungen-der-übertragungsfunktion-1" class="slide level2">
+<h2>Darstellungen der Übertragungsfunktion 1</h2>
 <div class="columns">
 <div class="column" style="width:60%;">
 <ul>
@@ -862,7 +917,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <li>Unten: <span class="math inline">\(\angle G(j\omega)_{deg}\)</span> als Funktion von <span class="math inline">\(\log_{10} \omega\)</span></li>
 </ul></li>
 </ul>
-<div id="238612d1" class="cell" data-fig-height="5" data-fig-width="8" data-execution_count="5">
+<div id="a200230f" class="cell" data-fig-height="5" data-fig-width="8" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -908,15 +963,15 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 </table>
 </div></div>
 </section>
-<section id="darstellungen-der-übertragunsfunktion-2" class="slide level2">
-<h2>Darstellungen der Übertragunsfunktion 2</h2>
+<section id="darstellungen-der-übertragungsfunktion-2" class="slide level2">
+<h2>Darstellungen der Übertragungsfunktion 2</h2>
 <ul>
 <li><em>Nyquist-Diagramm</em> (auch <em>Ortskurve</em>)
 <ul>
 <li>Von einem Zeiger mit Länge <span class="math inline">\(\vert G(j\omega) \vert\)</span> und Winkel <span class="math inline">\(\angle G(j\omega)\)</span> gezeichnete Ortskurve</li>
 </ul></li>
 </ul>
-<div id="cf0b1205" class="cell" data-fig-height="6" data-fig-width="6" data-execution_count="6">
+<div id="2560ce10" class="cell" data-fig-height="6" data-fig-width="6" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -929,7 +984,7 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
 <section id="beispiele-von-übertragungsfunktionen" class="slide level2">
 <h2>Beispiele von Übertragungsfunktionen</h2>
 <!-- Lunze Abb. 6.54 -->
-<div id="e6226b36" class="cell" data-fig-height="8" data-fig-width="12" data-execution_count="7">
+<div id="8c0c20ee" class="cell" data-fig-height="8" data-fig-width="12" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -970,13 +1025,30 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
       }</style></aside>
 <!-- KJA p 239, lunze S. 241/242 -->
 </section>
-<section id="beispiel-3" class="slide level2 unnumbered">
-<h2>Beispiel 3</h2>
-<div style="text-align: center; padding: 50px;">
+<section id="lernziele-heute-und-überblick-4" class="slide level2 scrollable">
+<h2>Lernziele heute und Überblick</h2>
+<ol type="1">
+<li>Wiederholung</li>
+<li>Motivation</li>
+<li>Theorie Teil 1</li>
+<li><strong>Theorie Teil 2</strong>
+<ul>
+<li>Konvertierung zwischen Zustandsraum und Übertragungsfunktion</li>
+<li>Zerlegung von Eingängen in Grundformen</li>
+<li>Laplace-Transformation und umgekehrte Laplace-Transformation</li>
+<li>Berechnung von Ausgängen mit Übertragungsfunktionen</li>
+<li>Darstellung von Übertragungsfunktionen</li>
+<li>Nullstellen und Pole</li>
+<li><strong>Beispiel</strong></li>
+</ul></li>
+<li>Rückblick</li>
+<li>Quellen</li>
+</ol>
+<div style="position: absolute; top: 550px; right: 30px;">
 <p><a href="simulation2.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;"> Feder-Masse-Schwinger 2 in neuem Tab öffnen </a></p>
 </div>
 <aside class="notes">
-<p>Öffne die Simulation in einem neuen Tab. Danach mit Alt+Tab zurück zur Präsentation! - Erkennen von Nullstellen und Polen in Systemen aus Bodediagramm. Darstellung von entsprechenden Ergebnissen im Zeitbereich. - Pol-Nullstellendiagramm???</p>
+<p>Öffne die Simulation in einem neuen Tab. Danach mit Alt+Tab zurück zur Präsentation! - Erkennen von Nullstellen und Polen in Systemen aus Bodediagramm. Darstellung von entsprechenden Ergebnissen im Zeitbereich.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -990,18 +1062,27 @@ D = \begin{bmatrix}d\end{bmatrix}\)</span></p></li>
       }</style></aside>
 <!-- Lunze Beispiel 6.4 -->
 </section>
+<section id="lernziele-heute-und-überblick-5" class="slide level2 scrollable">
+<h2>Lernziele heute und Überblick</h2>
+<ol type="1">
+<li>Wiederholung</li>
+<li>Motivation</li>
+<li>Theorie Teil 1</li>
+<li>Theorie Teil 2</li>
+<li><strong>Rückblick</strong></li>
+<li>Quellen</li>
+</ol>
+</section>
 <section id="rückblick-lernziele" class="slide level2">
 <h2>Rückblick Lernziele</h2>
 <ul>
 <li>Vorteile der Betrachtung im Frequenzbereich: Einfache (algebraische) Berechnung!</li>
-<li>Ausgang für exponentielle Eingänge</li>
-<li>Übertragungsfunktion</li>
-<li>Umrechnung von Zustandsraum zu Übertragungsfunktion und umgekehrt</li>
-<li>Laplace-Transformation und umgekehrte Laplace-Transformation</li>
-<li><em>Nullstellen und Pole</em></li>
-<li><em>Bode-Diagramme</em></li>
+<li>Zerlegung von Eingängen in Grundformen via Laplace-Transformation (und Superposition)</li>
+<li>Umrechnungen von Zustandsraum zu Übertragungsfunktion und umgekehrt sind bekannt</li>
+<li>Darstellung von Übertragungsfunktionen vor allem über Frequenz</li>
+<li>Nullstellen und Pole beschreiben besondere Eigenschaften des Systems</li>
+<li>Stabilität kann aus realen Teilen der Pole abgeleitet werden</li>
 </ul>
-<!-- Fehlt/bleibt weg wegen Zeit: Reglerentwurf prinzipiell? Optimierungs- und simulationsbasiert einerseits (ohne Übertragungsfunktion), andererseits Synthese mit Übertragungsfunktion. -->
 </section>
 <section id="referenzen" class="slide level2">
 <h2>Referenzen</h2>

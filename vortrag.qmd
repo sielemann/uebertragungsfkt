@@ -1,7 +1,7 @@
 ---
 title: "Übertragungsfunktionen"
 author: "Michael Sielemann"
-date: "2025-09-19"
+date: "2025-10-17"
 output: revealjs
 format:
   revealjs:
@@ -149,7 +149,7 @@ Fragen
  - Wie heissen der erste und zweite Summand der analytischen Lösung? Freie und erzwungene Lösung
 :::
 
-## Beispiel 1 {.unnumbered}
+## Beispiel
 
 <div style="text-align: center; padding: 50px;">
   <a href="simulation1.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;">
@@ -165,12 +165,15 @@ Fragen
 :::
 
 
-## Lernziele heute
+## Lernziele heute und Überblick
 
- - Ausgang für exponentielle Eingänge
- - Übertragungsfunktion
- - Umrechnung von Zustandsraum zu Übertragungsfunktion und umgekehrt
- - Laplace-Transformation und umgekehrte Laplace-Transformation
+ 1. Wiederholung
+ 2. **Motivation**
+ 3. Theorie Teil 1
+ 4. Theorie Teil 2
+ 5. Rückblick
+ 6. Quellen
+ 
 
 
 ## Motivation
@@ -290,8 +293,21 @@ flowchart TD
 
 </div>
 
+## Lernziele heute und Überblick
 
-## Lösung der Faltungsgleichung
+ 1. Wiederholung
+ 2. Motivation
+ 3. **Theorie Teil 1**
+    - Ansatz zur Lösung der Faltungsgleichung
+    - Exponentielle Eingänge und Berechnung der Ausgänge
+    - Übertragungsfunktion und Analyse im Frequenzbereich
+    - Superposition
+    - Beispiel
+ 4. Theorie Teil 2
+ 5. Rückblick
+ 6. Quellen
+
+## Ansatz zur Lösung der Faltungsgleichung
 
  - Faltungsgleichung beschreibt Ausgang vollständig
      - $y(t) = C e^{At} x_0 + \int_0^t C e^{A(t-\tau)} B u(\tau) d\tau + D u(t)$ <!-- KJA Gl. 5.15 und Lunze Gl. 5.17-->
@@ -450,9 +466,22 @@ plt.show()
    - $u(t) = \sum_{i=1}^N U_i e^{s_i t} \implies y(t) = \sum_{i=1}^N U_i G(s_i) e^{s_i t}$
 
 
-## Beispiel 2 {.unnumbered}
 
-<div style="text-align: center; padding: 50px;">
+## Lernziele heute und Überblick
+
+ 1. Wiederholung
+ 2. Motivation
+ 3. **Theorie Teil 1**
+    - Ansatz zur Lösung der Faltungsgleichung
+    - Exponentielle Eingänge und Berechnung der Ausgänge
+    - Übertragungsfunktion und Analyse im Frequenzbereich
+    - Superposition
+    - **Beispiel**
+ 4. Theorie Teil 2
+ 5. Rückblick
+ 6. Quellen
+
+<div style="position: absolute; top: 400px; right: 30px;">
   <a href="simulation1.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;">
     Feder-Masse-Schwinger 1 in neuem Tab öffnen
   </a>
@@ -464,6 +493,21 @@ plt.show()
  - Ergibt immer reelle Antwort wenn paar konjugiert komplexer Argumente verwendet wird
 :::
 
+## Lernziele heute und Überblick
+
+ 1. Wiederholung
+ 2. Motivation
+ 3. Theorie Teil 1
+ 4. **Theorie Teil 2**
+    - Konvertierung zwischen Zustandsraum und Übertragungsfunktion
+    - Zerlegung von Eingängen in Grundformen
+    - Laplace-Transformation und umgekehrte Laplace-Transformation
+    - Berechnung von Ausgängen mit Übertragungsfunktionen
+    - Darstellung von Übertragungsfunktionen
+    - Nullstellen und Pole
+    - Beispiel
+ 5. Rückblick
+ 6. Quellen
 
 ## Konvertierung Zustandsraum zu Übertragungsfunktion
 
@@ -500,7 +544,7 @@ plt.show()
 
 ::: notes
 Fragen
- - Kann jemand erkennen warum die Konvertierung von Übertragungsfunktion zu Zustandsraum nicht eindeutig ist? u=Ax + Bu -> Die Verstärkung von Eingängen im Vergleich zu Zuständen ist nicht eindeutig für stationäre Antwort. Wir wählen die beiden Werte gleich als Wurzeln der Zähler der Partialbrüche (Vergleich zu der vorherigen Folie).
+ - Kann jemand erkennen warum die Konvertierung von Übertragungsfunktion zu Zustandsraum nicht eindeutig ist? x_dot=Ax + Bu -> Die Verstärkung von Eingängen im Vergleich zu Zuständen ist nicht eindeutig für stationäre Antwort. Wir wählen die beiden Werte gleich als Wurzeln der Zähler der Partialbrüche (Vergleich zu der vorherigen Folie).
 :::
 
 ## Konvertierung Übertragungsfunktion zu Zustandsraum 2
@@ -553,13 +597,13 @@ Fragen
 
 ## Laplace-Transformation 2
 
- - Die inverste Laplace-Transformation transformiert aus dem Frequenzbereich $U(s)$ in den Zeitbereich 
+ - Die inverse Laplace-Transformation transformiert aus dem Frequenzbereich $U(s)$ in den Zeitbereich 
  - Diese Transformation schreiben wir als $\mathcal{L^{-1}}\{U\} = u$
  - Die inverse Transformation ist definiert durch
    $u(t) := \frac{1}{2\pi j} \lim_{\omega \to \infty} \int_{\gamma - j\omega}^{\gamma + j\omega} U(s) e^{-s t} ds$ <!-- Lunze Gl. 6.49 -->
  - Sie müssen diese Laplace-Integrale nicht selber lösen sondern den praktischen Umgang mit Zeit- und Frequenzbereich verstehen.
 
-## Zwischenzusammenfassung
+## Zusammenfassung Laplace-Transformation
 
  - Wir finden die (stationären) Ausgänge im Zeitbereich (wenn benötigt) über
 
@@ -766,7 +810,7 @@ $$G_{yu} = \frac{G_1}{1 + G_1 G_2}$$
     - Der Einfluss der Dämpfung $\sigma$ in $G(\sigma \pm j\omega)$ braucht nicht detailliert analysiert werden, da dieser wegen Linearität unabhängig aufgeschlagen werden kann 
 
 
-## Darstellungen der Übertragunsfunktion 1
+## Darstellungen der Übertragungsfunktion 1
 
 ::: {.columns}
 ::: {.column width="60%"}
@@ -833,7 +877,7 @@ plt.show()
 :::
 
 
-## Darstellungen der Übertragunsfunktion 2
+## Darstellungen der Übertragungsfunktion 2
 
  - *Nyquist-Diagramm* (auch *Ortskurve*)
     - Von einem Zeiger mit Länge $\vert G(j\omega) \vert$ und Winkel $\angle G(j\omega)$ gezeichnete Ortskurve
@@ -1037,9 +1081,24 @@ Bezüglich Regelung können wir noch keine Aussage zur Güte der Regelung treffe
 <!-- KJA p 239, lunze S. 241/242 -->
 
 
-## Beispiel 3 {.unnumbered}
+## Lernziele heute und Überblick
 
-<div style="text-align: center; padding: 50px;">
+ 1. Wiederholung
+ 2. Motivation
+ 3. Theorie Teil 1
+ 4. **Theorie Teil 2**
+    - Konvertierung zwischen Zustandsraum und Übertragungsfunktion
+    - Zerlegung von Eingängen in Grundformen
+    - Laplace-Transformation und umgekehrte Laplace-Transformation
+    - Berechnung von Ausgängen mit Übertragungsfunktionen
+    - Darstellung von Übertragungsfunktionen
+    - Nullstellen und Pole
+    - **Beispiel**
+ 5. Rückblick
+ 6. Quellen
+
+
+<div style="position: absolute; top: 550px; right: 30px;">
   <a href="simulation2.html" target="_blank" style="font-size: 0.8em; padding: 20px; background: #039be5; color: white; text-decoration: none; border-radius: 10px;">
     Feder-Masse-Schwinger 2 in neuem Tab öffnen
   </a>
@@ -1048,22 +1107,30 @@ Bezüglich Regelung können wir noch keine Aussage zur Güte der Regelung treffe
 ::: notes
 Öffne die Simulation in einem neuen Tab. Danach mit Alt+Tab zurück zur Präsentation!
  - Erkennen von Nullstellen und Polen in Systemen aus Bodediagramm. Darstellung von entsprechenden Ergebnissen im Zeitbereich.
- - Pol-Nullstellendiagramm???
 :::
 
 <!-- Lunze Beispiel 6.4 -->
 
+
+## Lernziele heute und Überblick
+
+ 1. Wiederholung
+ 2. Motivation
+ 3. Theorie Teil 1
+ 4. Theorie Teil 2
+ 5. **Rückblick**
+ 6. Quellen
+
 ## Rückblick Lernziele
 
  - Vorteile der Betrachtung im Frequenzbereich: Einfache (algebraische) Berechnung!
- - Ausgang für exponentielle Eingänge
- - Übertragungsfunktion
- - Umrechnung von Zustandsraum zu Übertragungsfunktion und umgekehrt
- - Laplace-Transformation und umgekehrte Laplace-Transformation
- - *Nullstellen und Pole*
- - *Bode-Diagramme*
+ - Zerlegung von Eingängen in Grundformen via Laplace-Transformation (und Superposition)
+ - Umrechnungen von Zustandsraum zu Übertragungsfunktion und umgekehrt sind bekannt
+ - Darstellung von Übertragungsfunktionen vor allem über Frequenz
+ - Nullstellen und Pole beschreiben besondere Eigenschaften des Systems
+ - Stabilität kann aus realen Teilen der Pole abgeleitet werden
 
-<!-- Fehlt/bleibt weg wegen Zeit: Reglerentwurf prinzipiell? Optimierungs- und simulationsbasiert einerseits (ohne Übertragungsfunktion), andererseits Synthese mit Übertragungsfunktion. -->
+
 
 
 ## Referenzen
